@@ -33,5 +33,3 @@ class SensorData:
     def get_difference_electrodes_no2(self):
         return self.all_data["current_diff"]
 
-data = SensorData()
-print(data.get_NO2)
