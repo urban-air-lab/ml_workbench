@@ -19,5 +19,14 @@ class LUBWData:
         self.all_data = self.dataLUBW.join(self.datasonta, how="inner", lsuffix="_LUBW", rsuffix="sonta")
         self.all_data = self.all_data[self.all_data["NO2"] != -999]
 
+    def get_data(self):
+        return self.all_data
+
+    def get_NO2(self):
+        return self.all_data["NO2"]
+
+    def get_current_diff(self):
+        return self.all_data["current_diff"]
+
 data = LUBWData()
-print(data.all_data)
+print()
