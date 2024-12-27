@@ -19,7 +19,7 @@ class SensorData:
         return dataLUBW[["NO2"]]
 
     def __read_sonta(self):
-        datasonta = pd.read_csv("./data/sont_a_data.csv")
+        datasonta = pd.read_csv("./data/sont_c_data.csv")
         datasonta.set_index("_time", inplace=True)
         datasonta.index = pd.to_datetime(
         datasonta.index, format="%Y-%m-%d %H:%M:%S+00:00")
