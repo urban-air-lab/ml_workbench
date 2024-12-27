@@ -1,4 +1,3 @@
-from matplotlib.pyplot import legend
 from sklearn.model_selection import train_test_split
 import keras
 import matplotlib.pyplot as plt
