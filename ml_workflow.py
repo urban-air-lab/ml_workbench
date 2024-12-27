@@ -22,6 +22,7 @@ predictions = model.predict(x_test)
 fig, axes = plt.subplots(2, 1)
 axes[0].plot(y_test)
 axes[1].plot(predictions)
+plt.savefig('./results_sontc.png')
 plt.show()
 
 
