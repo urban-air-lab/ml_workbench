@@ -1,34 +1,43 @@
 import pandas as pd
+import re
 
 
 class SensorData:
-    def __init__(self):
-        self.dataLUBW = self.__read_lubw()
-        self.datasonta = self.__read_custom_data("./data/sont_c_data.csv")
-        self.futuredata = self.__read_custom_data("./data/sont_c_20241211-202241228.csv")
+    def __init__(self, file_path_lubw: str, file_path_aqsn: str, in_hour: bool = False):
+        self.dataLUBW = self.__read_lubw(file_path_lubw, )
 
-        self.datasonta["current_diff"] = self.datasonta["data_RAW_ADC_NO2_W"] - self.datasonta["data_RAW_ADC_NO2_A"]
-        self.datasonta = self.datasonta[["current_diff"]]
+        self.dataAQSN = self.__read_aqsn(file_path_aqsn)
+        self.dataAQSN["electrode_difference_NO2"] = self.dataAQSN["data_RAW_ADC_NO2_W"] - self.dataAQSN[
+            "data_RAW_ADC_NO2_A"]
+        self.dataAQSN = self.dataAQSN[["electrode_difference_NO2"]]
 
-        self.futuredata["current_diff"] = self.futuredata["data_RAW_ADC_NO2_W"] - self.futuredata["data_RAW_ADC_NO2_A"]
-        self.futuredata = self.futuredata[["current_diff"]]
+        if in_hour: # checken
+            self.dataAQSN.resample("h").mean()
 
-        self.all_data = self.dataLUBW.join(self.datasonta, how="inner", lsuffix="_LUBW", rsuffix="sonta")
+        self.all_data = self.dataLUBW.join(self.dataAQSN, how="inner", lsuffix="_LUBW", rsuffix="_AQSN")
         self.all_data = self.all_data[self.all_data["NO2"] != -999]
 
-    def __read_lubw(self) -> pd.DataFrame:
-        dataLUBW = pd.read_csv("./data/minute_data_lubw.csv")
-        dataLUBW.set_index("Zeitstempel", inplace=True)
-        dataLUBW.index = pd.to_datetime(
-            dataLUBW.index, format="%Y-%m-%d %H:%M:%S")
-        return dataLUBW[["NO2"]]
+    def __read_lubw(self, file_path_lubw) -> pd.DataFrame:
+        dataLUBW = pd.read_csv(file_path_lubw)
+        time_column = dataLUBW.iloc[:, 0]
 
-    def __read_custom_data(self, file_path: str) -> pd.DataFrame:
+        if not self.has_timezone_in_string(time_column[0]):
+            dates = pd.to_datetime(time_column).dt.tz_localize('Europe/Berlin')
+        else:
+            dates = pd.to_datetime(time_column)
+
+        dataLUBW.set_index(dates, inplace=True, drop=True)
+        return dataLUBW[["NO2"]] # variable machen
+
+    def __read_aqsn(self, file_path: str) -> pd.DataFrame:
         data = pd.read_csv(file_path)
+        data.iloc[:, 0] = pd.to_datetime(data.iloc[:, 0])
         data.set_index("_time", inplace=True)
-        data.index = pd.to_datetime(
-           data.index, format="%Y-%m-%d %H:%M:%S+00:00")
         return data
+
+    def has_timezone_in_string(self, datetime_str):
+        tz_pattern = re.compile(r'(\+|-)\d{2}:\d{2}|Z$')
+        return bool(tz_pattern.search(datetime_str))
 
     @property
     def get_NO2(self) -> pd.Series:
@@ -36,5 +45,4 @@ class SensorData:
 
     @property
     def get_difference_electrodes_no2(self) -> pd.Series:
-        return self.all_data["current_diff"]
-
+        return self.all_data["electrode_difference_NO2"]
