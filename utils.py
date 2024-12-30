@@ -35,7 +35,7 @@ class SensorData:
         data.set_index("_time", inplace=True)
         return data
 
-    def has_timezone_in_string(self, datetime_str):
+    def has_timezone_in_string(self, datetime_str: str) -> bool:
         tz_pattern = re.compile(r'(\+|-)\d{2}:\d{2}|Z$')
         return bool(tz_pattern.search(datetime_str))
 
