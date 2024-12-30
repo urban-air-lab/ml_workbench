@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from utils import SensorData
 
 
-def workflow():
+def workflow(model):
     sontc_data = SensorData(file_path_lubw="./data/minute_data_lubw.csv",
                             file_path_aqsn="./data/sont_c_data.csv",
                             in_hour=False)
@@ -18,11 +18,6 @@ def workflow():
                                                         test_size=0.2,
                                                         shuffle=False)
 
-    model = keras.Sequential()
-    model.add(keras.layers.Dense(units=8, activation="relu"))
-    model.add(keras.layers.Dense(units=16, activation="relu"))
-    model.add(keras.layers.Dense(units=8, activation="relu"))
-    model.add(keras.layers.Dense(units=1))
 
     model.compile(optimizer=keras.optimizers.Adam(0.001) ,loss="mean_squared_error")
     model.fit(x_train, y_train, epochs=5, batch_size=3)
