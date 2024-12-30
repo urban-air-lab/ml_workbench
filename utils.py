@@ -15,7 +15,7 @@ class SensorData:
             self.dataAQSN.resample("h").mean()
 
         self.all_data = self.dataLUBW.join(self.dataAQSN, how="inner", lsuffix="_LUBW", rsuffix="_AQSN")
-        self.all_data = self.all_data[self.all_data["NO2"] != -999]
+        self.all_data = self.all_data[self.all_data["data_NO2"] != -999]
 
     def __read_lubw(self, file_path_lubw) -> pd.DataFrame:
         dataLUBW = pd.read_csv(file_path_lubw)
@@ -27,7 +27,7 @@ class SensorData:
             dates = pd.to_datetime(time_column)
 
         dataLUBW.set_index(dates, inplace=True, drop=True)
-        return dataLUBW[["NO2"]] # variable machen
+        return dataLUBW[["data_NO2"]] # variable machen
 
     def __read_aqsn(self, file_path: str) -> pd.DataFrame:
         data = pd.read_csv(file_path)
@@ -41,7 +41,7 @@ class SensorData:
 
     @property
     def get_NO2(self) -> pd.Series:
-        return self.all_data["NO2"]
+        return self.all_data["data_NO2"]
 
     @property
     def get_difference_electrodes_no2(self) -> pd.Series:
