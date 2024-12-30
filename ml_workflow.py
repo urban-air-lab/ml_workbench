@@ -4,17 +4,13 @@ import matplotlib.pyplot as plt
 from utils import SensorData
 
 
-def workflow(model):
-    sontc_data = SensorData(file_path_lubw="./data/minute_data_lubw.csv",
-                            file_path_aqsn="./data/sont_c_data.csv",
-                            in_hour=False)
-
+def workflow(model, data: SensorData) -> None:
     future_sontc_data = SensorData(file_path_lubw="./data/DEBW015_20241211-202241228.csv",
                                    file_path_aqsn="./data/sont_c_20241211-202241228.csv",
                                    in_hour=True)
 
-    x_train, x_test, y_train, y_test = train_test_split(sontc_data.get_difference_electrodes_no2,
-                                                        sontc_data.get_NO2,
+    x_train, x_test, y_train, y_test = train_test_split(data.get_difference_electrodes_no2,
+                                                        data.get_NO2,
                                                         test_size=0.2,
                                                         shuffle=False)
 
