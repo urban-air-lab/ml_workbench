@@ -18,20 +18,19 @@ if __name__ == "__main__":
     train_model(model=feedforward_model,
                 inputs=x_train,
                 targets=y_train,
-                save=True)
+                save=False)
     predictions = feedforward_model.predict(x_test)
     deviation = y_test - predictions.flatten()
 
-    fig, axes = plt.subplots(2, 2)
+    fig, axes = plt.subplots(2)
     axes = axes.flatten()
     axes[0].plot(y_test, label="y_test")
     axes[1].plot(predictions, label="predictions")
-    axes[2].plot(deviation, label="y_test - predicition")
 
     for ax in axes:
         ax.grid(True)
         ax.legend()
-    plt.savefig('../plots/run_1.png')
+    plt.savefig('../plots/sont_c_1.png')
     plt.show()
 
 

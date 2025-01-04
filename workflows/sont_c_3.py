@@ -14,5 +14,5 @@ if __name__ == "__main__":
     axes.plot(december_prediction, label="11. dezember ff sont_c")
     axes.grid(True)
     axes.legend()
-    plt.savefig('../plots/results_sontc_december.png')
+    plt.savefig('../plots/sont_c_3.png')
     plt.show()
