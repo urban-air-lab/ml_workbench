@@ -6,7 +6,7 @@ if __name__ == "__main__":
                                      file_path_aqsn="data/sont_c_20241211-20241228.csv",
                                      in_hour=True)
 
-    feedforward_model = load_model("./model.keras")
+    feedforward_model = load_model("./models/model.keras")
     december_prediction = feedforward_model.predict(sontc_data_december.get_difference_electrodes_no2)
 
     fig, axes = plt.subplots(1)

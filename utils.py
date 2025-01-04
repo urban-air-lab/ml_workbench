@@ -54,7 +54,7 @@ def train_model(model: Model, inputs: pd.DataFrame, targets: pd.DataFrame, save:
     model.compile(optimizer=keras.optimizers.Adam(0.001), loss="mean_squared_error")
     model.fit(inputs, targets, epochs=5, batch_size=3)
     if save:
-        model.save("./model.keras")
+        model.save("./models/model.keras")
 
 
 def load_model(model_path: str) -> Model:
