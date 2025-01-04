@@ -31,7 +31,7 @@ if __name__ == "__main__":
     for ax in axes:
         ax.grid(True)
         ax.legend()
-    plt.savefig('./results/run_1.png')
+    plt.savefig('./plots/run_1.png')
     plt.show()
 
 
