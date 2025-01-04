@@ -1,5 +1,7 @@
 import pandas as pd
 import re
+import keras
+from keras import Model
 
 
 class SensorData:
@@ -46,3 +48,10 @@ class SensorData:
     @property
     def get_difference_electrodes_no2(self) -> pd.Series:
         return self.all_data["electrode_difference_NO2"]
+
+
+def train_model(model: Model, inputs: pd.DataFrame, targets: pd.DataFrame, save: bool=False) -> None:
+    model.compile(optimizer=keras.optimizers.Adam(0.001), loss="mean_squared_error")
+    model.fit(inputs, targets, epochs=5, batch_size=3)
+    if save:
+        model.save("./model.keras")

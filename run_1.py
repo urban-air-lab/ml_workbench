@@ -1,17 +1,7 @@
-import pandas as pd
 from sklearn.model_selection import train_test_split
 from models import create_feedforward_model
-from utils import SensorData
-import keras
-from keras import Model
+from utils import SensorData, train_model
 import matplotlib.pyplot as plt
-
-
-def train_model(model: Model, inputs: pd.DataFrame, targets: pd.DataFrame, save: bool=False) -> None:
-    model.compile(optimizer=keras.optimizers.Adam(0.001), loss="mean_squared_error")
-    model.fit(inputs, targets, epochs=5, batch_size=3)
-    if save:
-        model.save("./model.keras")
 
 
 if __name__ == "__main__":
