@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
-    sontc_data = SensorData(file_path_lubw="./data/minute_data_lubw.csv",
-                            file_path_aqsn="data/sont_c_20241115-20241217.csv",
+    sontc_data = SensorData(file_path_lubw="../data/minute_data_lubw.csv",
+                            file_path_aqsn="../data/sont_c_20241115-20241217.csv",
                             in_hour=False)
 
     x_train, x_test, y_train, y_test = train_test_split(sontc_data.get_difference_electrodes_no2,
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     for ax in axes:
         ax.grid(True)
         ax.legend()
-    plt.savefig('./plots/run_1.png')
+    plt.savefig('../plots/run_1.png')
     plt.show()
 
 
