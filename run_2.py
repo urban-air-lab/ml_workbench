@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     sontc_data_december = SensorData(file_path_lubw="./data/DEBW015_20241211-202241228.csv",
-                                   file_path_aqsn="./data/sont_c_20241211-202241228.csv",
-                                   in_hour=True)
+                                     file_path_aqsn="data/sont_c_20241211-20241228.csv",
+                                     in_hour=True)
     feedforward_model = keras.saving.load_model("./model.keras")
 
     december_prediction = feedforward_model.predict(sontc_data_december.get_difference_electrodes_no2)
