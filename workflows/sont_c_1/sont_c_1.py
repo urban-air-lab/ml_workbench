@@ -19,7 +19,6 @@ if __name__ == "__main__":
                 targets=y_train,
                 save=False)
     predictions = feedforward_model.predict(x_test)
-    deviation = y_test - predictions.flatten()
 
     plot_results('../../plots/sont_c_1.png', (y_test, "y_test"), (predictions, "predictions"))
 
