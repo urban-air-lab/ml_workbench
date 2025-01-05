@@ -1,12 +1,12 @@
 from sklearn.model_selection import train_test_split
 from models import create_feedforward_model
-from utils import SensorData, train_model
+from utils import SensorData, train_model, get_config
 import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
-    sontc_data = SensorData(file_path_lubw="../data/minute_data_lubw.csv",
-                            file_path_aqsn="../data/sont_c_20241115-20241217.csv",
+    sontc_data = SensorData(file_path_lubw="../../data/minute_data_lubw.csv",
+                            file_path_aqsn="../../data/sont_c_20241115-20241217.csv",
                             in_hour=False)
 
     x_train, x_test, y_train, y_test = train_test_split(sontc_data.get_difference_electrodes_no2,
@@ -16,6 +16,7 @@ if __name__ == "__main__":
 
     feedforward_model = create_feedforward_model()
     train_model(model=feedforward_model,
+                config=get_config(),
                 inputs=x_train,
                 targets=y_train,
                 save=False)
@@ -30,7 +31,7 @@ if __name__ == "__main__":
     for ax in axes:
         ax.grid(True)
         ax.legend()
-    plt.savefig('../plots/sont_c_1.png')
+    plt.savefig('../../plots/sont_c_1.png')
     plt.show()
 
 

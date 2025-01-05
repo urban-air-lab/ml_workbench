@@ -2,11 +2,11 @@ from utils import SensorData, load_model
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    sontc_data_december = SensorData(file_path_lubw="../data/DEBW015_20241211-202241228.csv",
-                                     file_path_aqsn="../data/sont_c_20241211-20241228.csv",
+    sontc_data_december = SensorData(file_path_lubw="../../data/DEBW015_20241211-202241228.csv",
+                                     file_path_aqsn="../../data/sont_c_20241211-20241228.csv",
                                      in_hour=True)
 
-    feedforward_model = load_model("../models/model.keras")
+    feedforward_model = load_model("../../models/feedforward_model.keras")
     december_prediction = feedforward_model.predict(sontc_data_december.get_difference_electrodes_no2)
 
     fig, axes = plt.subplots(1)
@@ -14,5 +14,5 @@ if __name__ == "__main__":
     axes.plot(december_prediction, label="11. dezember ff sont_c")
     axes.grid(True)
     axes.legend()
-    plt.savefig('../plots/sont_c_3.png')
+    plt.savefig('../../plots/sont_c_3.png')
     plt.show()
