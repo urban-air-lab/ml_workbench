@@ -1,5 +1,4 @@
-from utils import SensorData, load_model
-import matplotlib.pyplot as plt
+from utils import *
 
 if __name__ == "__main__":
     sontc_data_december = SensorData(file_path_lubw="../../data/DEBW015_20241211-202241228.csv",
@@ -9,10 +8,4 @@ if __name__ == "__main__":
     feedforward_model = load_model("../../models/feedforward_model.keras")
     december_prediction = feedforward_model.predict(sontc_data_december.get_difference_electrodes_no2)
 
-    fig, axes = plt.subplots(1)
-    axes.plot(sontc_data_december.get_NO2, label="11. dezember ff LUBW")
-    axes.plot(december_prediction, label="11. dezember ff sont_c")
-    axes.grid(True)
-    axes.legend()
-    plt.savefig('../../plots/sont_c_3.png')
-    plt.show()
+    plot_results('../../plots/sont_c_3.png', (sontc_data_december.get_NO2, "true"), (december_prediction, "prediction"))

@@ -1,8 +1,6 @@
 from sklearn.model_selection import train_test_split
 from models import create_feedforward_model
-from utils import SensorData, train_model, get_config
-import matplotlib.pyplot as plt
-
+from utils import *
 
 if __name__ == "__main__":
     sontc_data = SensorData(file_path_lubw="../../data/minute_data_lubw.csv",
@@ -23,15 +21,5 @@ if __name__ == "__main__":
     predictions = feedforward_model.predict(x_test)
     deviation = y_test - predictions.flatten()
 
-    fig, axes = plt.subplots(2)
-    axes = axes.flatten()
-    axes[0].plot(y_test, label="y_test")
-    axes[1].plot(predictions, label="predictions")
-
-    for ax in axes:
-        ax.grid(True)
-        ax.legend()
-    plt.savefig('../../plots/sont_c_1.png')
-    plt.show()
-
+    plot_results('../../plots/sont_c_1.png', (y_test, "y_test"), (predictions, "predictions"))
 

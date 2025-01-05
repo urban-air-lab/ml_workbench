@@ -4,6 +4,7 @@ import keras
 from keras import Model
 import logging
 import yaml
+import matplotlib.pyplot as plt
 
 
 class SensorData:
@@ -73,3 +74,12 @@ def get_config() -> dict:
         logging.error(f"IOError: An I/O error occurred")
     except Exception as e:
         logging.error(f"An unexpected error occurred: {e}")
+
+
+def plot_results(plot_path: str, *args) -> None:
+    figure, axes = plt.subplots(nrows=len(args), figsize=(10, 10))
+    for index, (values, name) in enumerate(args):
+        axes[index].plot(values)
+        axes[index].set_title(name)
+    plt.savefig(plot_path)
+    plt.show()
