@@ -1,0 +1,5 @@
+keras==3.7.0
+matplotlib==3.10.0
+pandas==2.2.3
+PyYAML==6.0.2
+scikit_learn==1.6.0
