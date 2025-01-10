@@ -20,6 +20,8 @@ if __name__ == "__main__":
                 targets=y_train,
                 save=True)
     predictions = feedforward_model.predict(x_test)
+    predictions_dataframe = pd.DataFrame(predictions, index=y_test.index)
     deviation = y_test - predictions.flatten()
+    deviation_dataframe = pd.DataFrame(deviation, index=y_test.index)
 
-    plot_results('../../plots/sont_c_2.png', (y_test, "y_test"), (predictions, "predictions"), (deviation, "deviation"))
+    plot_results('../../plots/sont_c_2.png', (y_test, "y_test"), (predictions_dataframe, "predictions"), (deviation_dataframe, "deviation"))

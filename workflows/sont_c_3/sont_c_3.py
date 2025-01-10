@@ -7,5 +7,6 @@ if __name__ == "__main__":
 
     feedforward_model = load_model("../../models/feedforward_model.keras")
     december_prediction = feedforward_model.predict(sontc_data_december.get_difference_electrodes_no2)
+    december_dataframe = pd.DataFrame(december_prediction, index=sontc_data_december.get_dates)
 
-    plot_results('../../plots/sont_c_3.png', (sontc_data_december.get_NO2, "true"), (december_prediction, "prediction"))
+    plot_results('../../plots/sont_c_3.png', (sontc_data_december.get_NO2, "true"), (december_dataframe, "prediction"))

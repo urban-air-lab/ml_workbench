@@ -1,3 +1,4 @@
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from models import create_feedforward_model
 from utils import *
@@ -19,6 +20,7 @@ if __name__ == "__main__":
                 targets=y_train,
                 save=False)
     predictions = feedforward_model.predict(x_test)
+    predictions_dataframe = pd.DataFrame(predictions, index=y_test.index)
 
-    plot_results('../../plots/sont_a_1.png', (y_test, "y_test"), (predictions, "predictions"))
+    plot_results('../../plots/sont_a_1.png', (y_test, "y_test"), (predictions_dataframe, "predictions"))
 

@@ -19,6 +19,7 @@ if __name__ == "__main__":
                 targets=y_train,
                 save=False)
     predictions = feedforward_model.predict(x_test)
+    predictions_dataframe = pd.DataFrame(predictions, index=y_test.index)
 
-    plot_results('../../plots/sont_c_1.png', (y_test, "y_test"), (predictions, "predictions"))
+    plot_results('../../plots/sont_c_1.png', (y_test, "y_test"), (predictions_dataframe, "predictions"))
 

@@ -1,4 +1,4 @@
 name:
-epochs: 15
+epochs: 8
 learning_rate: 0.001
 batch: 3
