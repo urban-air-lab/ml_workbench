@@ -21,6 +21,7 @@ class SensorData:
 
         self.all_data = self.dataLUBW.join(self.dataAQSN, how="inner", lsuffix="_LUBW", rsuffix="_AQSN")
         self.all_data = self.all_data[self.all_data["data_NO2"] != -999]
+        self.all_data.dropna(inplace=True)
 
     def __read_lubw(self, file_path_lubw) -> pd.DataFrame:
         dataLUBW = pd.read_csv(file_path_lubw)
@@ -43,6 +44,10 @@ class SensorData:
     def has_timezone_in_string(self, datetime_str: str) -> bool:
         tz_pattern = re.compile(r'(\+|-)\d{2}:\d{2}|Z$')
         return bool(tz_pattern.search(datetime_str))
+
+    @property
+    def get_dates(self) -> pd.Series:
+        return self.all_data.index
 
     @property
     def get_NO2(self) -> pd.Series:
