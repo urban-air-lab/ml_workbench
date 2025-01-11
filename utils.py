@@ -5,6 +5,7 @@ from keras import Model
 import logging
 import yaml
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class SensorData:
@@ -84,7 +85,8 @@ def get_config() -> dict:
 def plot_results(plot_path: str, *args) -> None:
     figure, axes = plt.subplots(nrows=len(args), figsize=(10, 10))
     for index, (values, name) in enumerate(args):
-        axes[index].plot(values)
+        sns.lineplot(x=values.index.tolist(), y=values.values.flatten(), ax=axes[index])
         axes[index].set_title(name)
+        axes[index].grid()
     plt.savefig(plot_path)
     plt.show()
