@@ -64,9 +64,16 @@ def load_model(model_path: str) -> Model:
     return keras.saving.load_model(model_path)
 
 
-def get_config() -> dict:
+def get_database_config():
+    __get_config("./database_config.yaml")
+
+def get_workflow_config():
+    __get_config("./workflow_config.yaml")
+
+
+def __get_config(path:str) -> dict:
     try:
-        with open("./workflow_config.yaml", 'r') as file:
+        with open(path, 'r') as file:
             return yaml.safe_load(file)
     except FileNotFoundError:
         logging.error(f"No workflow config found in directory")
