@@ -67,9 +67,11 @@ def load_model(model_path: str) -> Model:
 def get_database_config():
     __get_config("./database_config.yaml")
 
+def get_lubw_config():
+    __get_config("./lubw_config.yaml")
+
 def get_workflow_config():
     __get_config("./workflow_config.yaml")
-
 
 def __get_config(path:str) -> dict:
     try:
