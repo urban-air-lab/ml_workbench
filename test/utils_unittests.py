@@ -3,7 +3,7 @@ from utils import _get_caller_directory, _get_config, get_database_config, get_w
 from pathlib import Path
 
 
-class MyTestCase(unittest.TestCase):
+class UtilsTestCases(unittest.TestCase):
 
     def test_get_caller_directory_test_is_in_path(self):
         directory = _get_caller_directory(1)
@@ -25,8 +25,6 @@ class MyTestCase(unittest.TestCase):
     def test_get_lubw_config(self):
         database_config = get_lubw_config()
         self.assertEqual(database_config["name"], "test")
-
-
 
 
 if __name__ == '__main__':
