@@ -6,6 +6,8 @@ import logging
 import yaml
 import matplotlib.pyplot as plt
 import seaborn as sns
+import inspect
+from pathlib import Path
 
 
 class SensorData:
@@ -71,24 +73,32 @@ def load_model(model_path: str) -> Model:
 
 
 def get_database_config():
-    __get_config("./database_config.yaml")
+    return _get_config(_get_caller_directory(2) / "database_config.yaml")
+
 
 def get_lubw_config():
-    __get_config("./lubw_config.yaml")
+    return _get_config(_get_caller_directory(2) / "lubw_config.yaml")
+
 
 def get_workflow_config():
-    __get_config("./workflow_config.yaml")
+    return _get_config(_get_caller_directory(2) / "workflow_config.yaml")
 
-def __get_config(path:str) -> dict:
+
+def _get_config(path: Path) -> dict:
     try:
-        with open(path, 'r') as file:
+        with open(str(path), 'r') as file:
             return yaml.safe_load(file)
     except FileNotFoundError:
-        logging.error(f"No workflow config found in directory")
+        logging.error(f"No config found in directory")
     except IOError:
         logging.error(f"IOError: An I/O error occurred")
     except Exception as e:
         logging.error(f"An unexpected error occurred: {e}")
+
+
+def _get_caller_directory(stack_position):
+    caller_file = inspect.stack()[stack_position].filename
+    return Path(caller_file).parent
 
 
 def plot_results(plot_path: str, *args) -> None:
