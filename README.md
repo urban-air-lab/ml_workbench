@@ -24,4 +24,21 @@ All components are deployed on a VServer hostet by cloud provider.
 ![alt text](aqsn_architecture.png)
 
 
+## Project Setup
+To setup the project you need to install requirements.txt and create a database_config.yaml in database package, 
+database_config.yaml has to have following structure 
+
+```
+url: [ip of InfluxDB instance]
+token: [auth token of InfluxDB instance]
+org: [organization of InfluxDB instance]
+```
+
+
+
+
+
+
+
+
 
