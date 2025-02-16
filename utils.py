@@ -72,15 +72,15 @@ def load_model(model_path: str) -> Model:
     return keras.saving.load_model(model_path)
 
 
-def get_database_config():
+def get_database_config() -> dict:
     return _get_config(_get_caller_directory(2) / "database_config.yaml")
 
 
-def get_lubw_config():
+def get_lubw_config() -> dict:
     return _get_config(_get_caller_directory(2) / "lubw_config.yaml")
 
 
-def get_workflow_config():
+def get_workflow_config() -> dict:
     return _get_config(_get_caller_directory(2) / "workflow_config.yaml")
 
 
@@ -96,7 +96,7 @@ def _get_config(path: Path) -> dict:
         logging.error(f"An unexpected error occurred: {e}")
 
 
-def _get_caller_directory(stack_position):
+def _get_caller_directory(stack_position: int) -> Path:
     caller_file = inspect.stack()[stack_position].filename
     return Path(caller_file).parent
 
