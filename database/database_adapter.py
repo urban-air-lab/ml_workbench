@@ -4,7 +4,7 @@ import pandas as pd
 from utils import get_database_config
 
 
-class InfluxDBDataFetcher:
+class InfluxDBAdapter:
     def __init__(self, bucket: str):
         """
         Initializes the InfluxDBDataFetcher class.
@@ -26,6 +26,8 @@ class InfluxDBDataFetcher:
         self.client = InfluxDBClient(url=self.url, token=self.token, org=self.org)
         self.query_api = self.client.query_api()
 
+    def query(self, query: str):
+        return self.query_api.query(query)
 
     def get_all_data_between(self, start_time: str, end_time: str) -> pd.DataFrame:
         """
