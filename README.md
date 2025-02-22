@@ -34,7 +34,8 @@ token: [auth token of InfluxDB instance]
 org: [organization of InfluxDB instance]
 ```
 
-
+## Run Tests
+Tests are base on Pytest - run all tests via comand line "pytest"
 
 
 
