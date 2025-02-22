@@ -1,5 +1,4 @@
-from utils import _get_caller_directory, _get_config, get_database_config, get_workflow_config, get_lubw_config
-from pathlib import Path
+from utils import _get_caller_directory, get_config
 
 
 def test_get_caller_directory_test_is_in_path():
@@ -8,21 +7,16 @@ def test_get_caller_directory_test_is_in_path():
 
 
 def test_get_config():
-    path = Path(_get_caller_directory(1) / "test.yaml")
-    config = _get_config(path)
+    config = get_config("./ressources/test.yaml")
     assert config["name"] == "test"
 
 
 def test_get_database_config():
-    database_config = get_database_config()
+    database_config = get_config("./ressources/database_config.yaml")
     assert database_config["url"] == "test.com"
 
 
 def test_get_workflow_config():
-    database_config = get_workflow_config()
+    database_config = get_config("./ressources/workflow_config.yaml")
     assert database_config["name"] == "test"
 
-
-def test_get_lubw_config():
-    database_config = get_lubw_config()
-    assert database_config["name"] == "test"

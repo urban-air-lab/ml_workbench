@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     feedforward_model = create_feedforward_model()
     train_model(model=feedforward_model,
-                config=get_workflow_config(),
+                config=get_config("./workflow_config.yaml"),
                 inputs=x_train,
                 targets=y_train,
                 save=False)

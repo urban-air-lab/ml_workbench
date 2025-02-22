@@ -1,7 +1,7 @@
 from influxdb_client import InfluxDBClient
 import pandas as pd
 
-from utils import get_database_config
+from utils import get_config
 
 
 class InfluxDBAdapter:
@@ -15,7 +15,7 @@ class InfluxDBAdapter:
         :param bucket: InfluxDB bucket name
         """
 
-        config = get_database_config()
+        config = get_config("database_config.yaml")
         self.url = config["url"]
         self.token = config["token"]
         self.org = config["org"]
