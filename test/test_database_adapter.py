@@ -1,20 +1,14 @@
-import unittest
+import pytest
 from database.database_adapter import InfluxDBAdapter
 
 
-class DatabaseAdapterIntegrationTests(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.database_adapter = InfluxDBAdapter("TestBucket")
-
-    def test_database_connection(self):
-        query_result = self.database_adapter.query('''from(bucket: "TestBucket")
-          |> range(start: -inf)''')
-        self.assertTrue(query_result)
+@pytest.fixture
+def database_connection():
+    connection = InfluxDBAdapter("TestBucket")
+    yield connection
 
 
-
-
-if __name__ == '__main__':
-    unittest.main()
+def test_database_connection(database_connection):
+    query_result = database_connection.query('''from(bucket: "TestBucket")
+      |> range(start: -inf)''')
+    assert len(query_result) > 0
