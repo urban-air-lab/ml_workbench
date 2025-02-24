@@ -29,6 +29,9 @@ class InfluxDBAdapter:
     def query(self, query: str):
         return self.query_api.query(query)
 
+    def query_dataframe(self, query: str) -> pd.DataFrame:
+        return self.query_api.query_data_frame(query)
+
     def get_all_data_between(self, start_time: str, end_time: str) -> pd.DataFrame:
         """
         Fetches all data of all devices between a given start and end time. (would currenty return testdataHHN/airup_sont_b)
