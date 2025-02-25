@@ -1,10 +1,9 @@
 from influxdb_client import InfluxDBClient
 import pandas as pd
-
 from utils import get_config
 
 
-class InfluxDBAdapter:
+class InfluxDBConnector:
     def __init__(self, bucket: str):
         """
         Initializes the InfluxDBDataFetcher class.
