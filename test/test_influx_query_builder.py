@@ -17,21 +17,21 @@ def test_builder_without_bucket():
 def test_builder_bucket():
     with pytest.raises(ValueError, match="time range must be set!"):
         query = InfluxQueryBuilder() \
-            .set_bucket(InfluxBuckets.test_bucket.value) \
+            .set_bucket(InfluxBuckets.TEST_BUCKET.value) \
             .build()
 
 
 def test_builder_bucket_range():
     with pytest.raises(ValueError, match="measurement must be set!"):
         query = InfluxQueryBuilder() \
-            .set_bucket(InfluxBuckets.test_bucket.value) \
+            .set_bucket(InfluxBuckets.TEST_BUCKET.value) \
             .set_range("2024-10-22T00:00:00Z", "2024-10-22T23:00:00Z") \
             .build()
 
 
 def test_builder_bucket_range_measurement():
     query = InfluxQueryBuilder() \
-        .set_bucket(InfluxBuckets.test_bucket.value) \
+        .set_bucket(InfluxBuckets.TEST_BUCKET.value) \
         .set_range("2024-10-22T00:00:00Z", "2024-10-22T23:00:00Z") \
         .set_measurement("sont_c") \
         .build()
@@ -40,7 +40,7 @@ def test_builder_bucket_range_measurement():
 
 def test_builder_bucket_range_measurement_fields():
     query = InfluxQueryBuilder() \
-        .set_bucket(InfluxBuckets.test_bucket.value) \
+        .set_bucket(InfluxBuckets.TEST_BUCKET.value) \
         .set_range("2024-10-22T00:00:00Z", "2024-10-22T23:00:00Z") \
         .set_measurement("sont_c") \
         .set_fields(["CO", "NO"]) \

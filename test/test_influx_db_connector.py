@@ -1,4 +1,3 @@
-import pandas as pd
 import pytest
 from database.Influx_db_connector import InfluxDBConnector
 from database.influx_buckets import InfluxBuckets
@@ -20,7 +19,7 @@ def test_database_connection(database_connection):
 
 def test_get_complete_query_as_dataframe(database_connection):
     query = InfluxQueryBuilder()\
-        .set_bucket(InfluxBuckets.test_bucket.value) \
+        .set_bucket(InfluxBuckets.TEST_BUCKET.value) \
         .set_range("2024-10-22T00:00:00Z", "2024-10-22T23:00:00Z") \
         .set_measurement("sont_c") \
         .set_fields(["CO", "NO"]) \
