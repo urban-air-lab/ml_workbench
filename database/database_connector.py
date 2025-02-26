@@ -29,7 +29,17 @@ class InfluxDBConnector:
         return self.query_api.query(query)
 
     def query_dataframe(self, query: str) -> pd.DataFrame:
-        return self.query_api.query_data_frame(query)
+        query_result = self.query_api.query_data_frame(query)
+        query_result.drop(["result", "table", "_measurement"], axis=1, inplace=True)
+
+        df_result = pd.DataFrame()
+        for attribute in query_result.loc[:, "_field"].unique():
+            df = query_result[query_result["_field"] == attribute]
+            df.reset_index(inplace=True)
+            df_result[attribute] = df.loc[:, "_value"]
+        df_result["time"] = query_result.loc[:, "_time"].unique()
+
+        return df_result
 
     def get_all_data_between(self, start_time: str, end_time: str) -> pd.DataFrame:
         """

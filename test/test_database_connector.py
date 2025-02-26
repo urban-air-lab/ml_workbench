@@ -19,8 +19,6 @@ def test_database_connection(database_connection):
 
 
 def test_get_complete_query_as_dataframe(database_connection):
-    attributes = ["CO", "NO"]
-
     query = InfluxQueryBuilder()\
         .set_bucket(InfluxBuckets.test_bucket.value) \
         .set_range("2024-10-22T00:00:00Z", "2024-10-22T23:00:00Z") \
@@ -29,13 +27,4 @@ def test_get_complete_query_as_dataframe(database_connection):
         .build()
 
     query_result = database_connection.query_dataframe(query)
-    query_result.drop(["result", "table", "_measurement"], axis=1, inplace=True)
-
-    df_result = pd.DataFrame()
-
-    for attribute in attributes:
-        df = query_result[query_result["_field"] == attribute]
-        df.reset_index(inplace=True)
-        df_result[attribute] = df.loc[:, "_value"]
-
     print(query_result)
