@@ -30,7 +30,6 @@ class InfluxDBConnector:
 
     def query_dataframe(self, query: str) -> pd.DataFrame:
         query_result = self.query_api.query_data_frame(query)
-        query_result.drop(["result", "table", "_measurement"], axis=1, inplace=True)
 
         df_result = pd.DataFrame()
         for attribute in query_result.loc[:, "_field"].unique():
