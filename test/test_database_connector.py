@@ -27,4 +27,5 @@ def test_get_complete_query_as_dataframe(database_connection):
         .build()
 
     query_result = database_connection.query_dataframe(query)
-    print(query_result)
+    print(query_result) #TODO: extend testing
+
