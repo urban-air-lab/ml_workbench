@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from database.database_connector import InfluxDBConnector
+from database.Influx_db_connector import InfluxDBConnector
 from database.influx_buckets import InfluxBuckets
 from database.influx_query_builder import InfluxQueryBuilder
 

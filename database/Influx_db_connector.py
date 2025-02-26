@@ -6,7 +6,7 @@ from utils import get_config
 class InfluxDBConnector:
     def __init__(self, bucket: str):
         """
-        Initializes the InfluxDBDataFetcher class.
+        Initializes the InfluxDBConnector class.
 
         :param url: InfluxDB server URL
         :param token: Authentication token for InfluxDB
