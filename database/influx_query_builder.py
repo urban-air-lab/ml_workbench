@@ -1,7 +1,7 @@
 
 class InfluxQueryBuilder:
     """
-    returns string usable as flux query, with the following structure:
+    returns string, usable as flux query, with the following structure:
 
     from(bucket: "{bucket}")
     |> range(start: {start_time}, stop: {stop_time})
