@@ -6,7 +6,7 @@ class InfluxQueryBuilder:
     from(bucket: "{bucket}")
     |> range(start: {start_time}, stop: {stop_time})
     |> filter(fn: (r) => r._measurement == "{measurement}")
-    |> filter(fn: (r) => r._field == "{attributes[0]}" or r._field == "{attributes[1]}")
+    |> filter(fn: (r) => r._field == "{attributes[0]}" or r._field == "{attributes[1]} or (...)")
     """
 
     def __init__(self):
