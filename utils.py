@@ -61,6 +61,29 @@ class SensorData:
         return self.all_data["electrode_difference_NO2"]
 
 
+def calculate_w_a_difference(df, gases):
+    calculated_differences = pd.DataFrame()
+    for gas in gases:
+        w_column = f"RAW_ADC_{gas}_W"
+        a_column = f"RAW_ADC_{gas}_A"
+        if w_column in df.columns and a_column in df.columns:
+            calculated_differences[f"{gas}_W_A"] = df[w_column] - df[a_column]
+        else:
+            print(f"Warning: Columns for {gas} not found in the dataframe.")
+    return calculated_differences
+
+
+def align_dataframes_by_time(df1, df2, time_column="time"):
+    df1[time_column] = pd.to_datetime(df1[time_column])
+    df2[time_column] = pd.to_datetime(df2[time_column])
+
+    common_times = df1.merge(df2, on=time_column, how="inner")[[time_column]]
+
+    df1_aligned = df1[df1[time_column].isin(common_times[time_column])].reset_index(drop=True)
+    df2_aligned = df2[df2[time_column].isin(common_times[time_column])].reset_index(drop=True)
+    return df1_aligned, df2_aligned
+
+
 def train_model(model: Model, config: dict, inputs: pd.DataFrame, targets: pd.DataFrame, save: bool = False) -> None:
     model.compile(optimizer=keras.optimizers.Adam(learning_rate=config["learning_rate"]), loss="mean_squared_error")
     model.fit(x=inputs, y=targets, epochs=config["epochs"], batch_size=config["batch"])
