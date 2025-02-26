@@ -1,5 +1,5 @@
 
-class FluxQueryBuilder:
+class InfluxQueryBuilder:
     """
     returns string usable as flux query, with the following structure:
 
