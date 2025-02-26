@@ -29,7 +29,7 @@ class InfluxQueryBuilder:
         self.measurement = f'''|> filter(fn: (r) => r._measurement == "{measurement}")'''
         return self
 
-    def set_fields(self, fields: str):
+    def set_fields(self, fields: list):
         self.fields = "|> filter(fn: (r) =>"
         for index, field in enumerate(fields):
             if index == 0:
