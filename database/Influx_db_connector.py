@@ -29,18 +29,6 @@ class InfluxDBConnector:
 
     def query_dataframe(self, query: str) -> pd.DataFrame:
         query_result = self.query_api.query_data_frame(query)
-        df_result = self.__get_fields_from_query(query_result)
-        df_result["time"] = self._get_timestamps_from_query(query_result)
-        return df_result
-
-    def __get_fields_from_query(self, query_result):
-        df_result = pd.DataFrame()
-        for attribute in query_result.loc[:, "_field"].unique():
-            df = query_result[query_result["_field"] == attribute]
-            df.reset_index(inplace=True)
-            df_result[attribute] = df.loc[:, "_value"]
-        return df_result
-
-    def _get_timestamps_from_query(self, query_result):
-        return query_result.loc[:, "_time"].unique()
-
+        query_result.drop(["result", "table", "_start", "_stop", "_measurement"], inplace=True, axis=1)
+        query_result.set_index("_time", inplace=True, drop=True)
+        return query_result

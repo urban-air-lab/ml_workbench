@@ -14,6 +14,7 @@ class InfluxQueryBuilder:
         self.range = None
         self.measurement = None
         self.fields = None
+        self.pivot = '''|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'''
         self.query = None
 
     def set_bucket(self, bucket: str):
@@ -50,5 +51,6 @@ class InfluxQueryBuilder:
         self.query = self.bucket + self.range + self.measurement
         if self.fields is not None:
             self.query = self.query + self.fields
+        self.query = self.query + self.pivot
 
         return self.query
