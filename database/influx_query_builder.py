@@ -1,5 +1,6 @@
 import re
 
+
 class InfluxQueryBuilder:
     """
     returns string, usable as flux query, with the following structure:
@@ -64,4 +65,3 @@ class InfluxQueryBuilder:
         if not re.match(pattern, date):
             return False
         return True
-
