@@ -1,3 +1,5 @@
+import re
+from datetime import datetime
 
 class InfluxQueryBuilder:
     """
@@ -22,7 +24,10 @@ class InfluxQueryBuilder:
         return self
 
     def set_range(self, start_time: str, stop_time: str):
-        # TODO: date format validation
+        valid_start = self._is_valid_iso8601_utc(start_time)
+        valid_end = self._is_valid_iso8601_utc(stop_time)
+        if not valid_start & valid_end:
+            raise ValueError("No valid date format - must be yyyy-mm-ddTHH:MM:SSZ")
         self.range = f'''|> range(start: {start_time}, stop: {stop_time})'''
         return self
 
@@ -54,3 +59,10 @@ class InfluxQueryBuilder:
         self.query = self.query + self.pivot
 
         return self.query
+
+    def _is_valid_iso8601_utc(self, date: str) -> bool:
+        pattern = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"
+        if not re.match(pattern, date):
+            return False
+        return True
+
