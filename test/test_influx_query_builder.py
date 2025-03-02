@@ -35,7 +35,7 @@ def test_builder_bucket_range_measurement():
         .set_range("2024-10-22T00:00:00Z", "2024-10-22T23:00:00Z") \
         .set_measurement("sont_c") \
         .build()
-    assert query == '''from(bucket: "TestBucket")|> range(start: 2024-10-22T00:00:00Z, stop: 2024-10-22T23:00:00Z)|> filter(fn: (r) => r._measurement == "sont_c")'''
+    assert query == '''from(bucket: "TestBucket")|> range(start: 2024-10-22T00:00:00Z, stop: 2024-10-22T23:00:00Z)|> filter(fn: (r) => r._measurement == "sont_c")|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'''
 
 
 def test_builder_bucket_range_measurement_fields():
@@ -45,4 +45,4 @@ def test_builder_bucket_range_measurement_fields():
         .set_measurement("sont_c") \
         .set_fields(["CO", "NO"]) \
         .build()
-    assert query == '''from(bucket: "TestBucket")|> range(start: 2024-10-22T00:00:00Z, stop: 2024-10-22T23:00:00Z)|> filter(fn: (r) => r._measurement == "sont_c")|> filter(fn: (r) => r._field == "CO" or r._field == "NO")'''
+    assert query == '''from(bucket: "TestBucket")|> range(start: 2024-10-22T00:00:00Z, stop: 2024-10-22T23:00:00Z)|> filter(fn: (r) => r._measurement == "sont_c")|> filter(fn: (r) => r._field == "CO" or r._field == "NO")|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'''
