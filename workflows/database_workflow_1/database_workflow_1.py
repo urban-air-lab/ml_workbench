@@ -19,6 +19,8 @@ if __name__ == "__main__":
                      "RAW_ADC_NO_A",
                      "RAW_ADC_O3_W",
                      "RAW_ADC_O3_A",
+                     "sht_temp",
+                     "sht_humid"
                      ]) \
         .build()
     input_data = connection.query_dataframe(inputs_query)

@@ -73,7 +73,11 @@ def calculate_w_a_difference(df, gases):
     return calculated_differences
 
 
-def align_dataframes_by_time(df1, df2, time_column="time"):
+def align_dataframes_by_time(df1, df2, time_column="_time"):
+    if df1.index.name == time_column:
+        df1 = df1.reset_index()
+    if df2.index.name == time_column:
+        df2 = df2.reset_index()
     df1[time_column] = pd.to_datetime(df1[time_column])
     df2[time_column] = pd.to_datetime(df2[time_column])
 
