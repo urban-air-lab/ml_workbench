@@ -1,5 +1,4 @@
 import pytest
-
 from app.database import InfluxBuckets
 from app.database import InfluxQueryBuilder
 

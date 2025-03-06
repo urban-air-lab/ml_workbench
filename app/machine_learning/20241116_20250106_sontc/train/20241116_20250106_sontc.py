@@ -7,7 +7,7 @@ from app.machine_learning.models.ModelFactory import create_feedforward_model
 from utils import calculate_w_a_difference, train_model, get_config, plot_results, align_dataframes_by_time
 
 if __name__ == "__main__":
-    connection = InfluxDBConnector("TestBucket")
+    connection = InfluxDBConnector()
 
     inputs_query = InfluxQueryBuilder()\
         .set_bucket(InfluxBuckets.AQSN_MINUTE_CALIBRATION_BUCKET.value) \

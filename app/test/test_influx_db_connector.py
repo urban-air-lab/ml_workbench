@@ -10,7 +10,7 @@ IN_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 
 @pytest.fixture
 def database_connection():
-    connection = InfluxDBConnector("TestBucket")
+    connection = InfluxDBConnector()
     yield connection
 
 

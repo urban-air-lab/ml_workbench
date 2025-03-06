@@ -6,7 +6,7 @@ from app.utils import get_config
 
 
 class InfluxDBConnector:
-    def __init__(self, bucket: str):
+    def __init__(self):
         """
         Initializes the InfluxDBConnector class.
 
@@ -20,7 +20,6 @@ class InfluxDBConnector:
         self.url = config["url"]
         self.token = config["token"]
         self.org = config["org"]
-        self.bucket = bucket
         self.timeout = 60000
 
         self.client = InfluxDBClient(url=self.url, token=self.token, org=self.org)
