@@ -1,6 +1,7 @@
 import pytest
-from app.database import InfluxBuckets
-from app.database import InfluxQueryBuilder
+
+from app.database.influx_buckets import InfluxBuckets
+from app.database.influx_query_builder import InfluxQueryBuilder
 
 
 def test_builder_init():
