@@ -73,14 +73,14 @@ def calculate_w_a_difference(df, gases):
     return calculated_differences
 
 
-def align_dataframes_by_time(df1, df2, time_column="time"):
-    df1[time_column] = pd.to_datetime(df1[time_column])
-    df2[time_column] = pd.to_datetime(df2[time_column])
+def align_dataframes_by_time(df1, df2):
+    df1.index = pd.to_datetime(df1.index)
+    df2.index = pd.to_datetime(df2.index)
 
-    common_times = df1.merge(df2, on=time_column, how="inner")[[time_column]]
+    common_times = df1.index.intersection(df2.index)
 
-    df1_aligned = df1[df1[time_column].isin(common_times[time_column])].reset_index(drop=True)
-    df2_aligned = df2[df2[time_column].isin(common_times[time_column])].reset_index(drop=True)
+    df1_aligned = df1.loc[common_times]
+    df2_aligned = df2.loc[common_times]
     return df1_aligned, df2_aligned
 
 
@@ -88,7 +88,7 @@ def train_model(model: Model, config: dict, inputs: pd.DataFrame, targets: pd.Da
     model.compile(optimizer=keras.optimizers.Adam(learning_rate=config["learning_rate"]), loss="mean_squared_error")
     model.fit(x=inputs, y=targets, epochs=config["epochs"], batch_size=config["batch"])
     if save:
-        model.save(f"../../models/{config['name']}.keras")
+        model.save(f"./{config['name']}.keras")
 
 
 def load_model(model_path: str) -> Model:
