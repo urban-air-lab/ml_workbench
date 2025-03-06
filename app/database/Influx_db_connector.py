@@ -1,8 +1,10 @@
 from influxdb_client import InfluxDBClient
 import pandas as pd
-from utils import get_config
 
 # TODO: remove bucket parameter
+from app.utils import get_config
+
+
 class InfluxDBConnector:
     def __init__(self, bucket: str):
         """
