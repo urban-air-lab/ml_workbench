@@ -9,6 +9,7 @@ class InfluxQueryBuilder:
     |> range(start: {start_time}, stop: {stop_time})
     |> filter(fn: (r) => r._measurement == "{measurement}")
     |> filter(fn: (r) => r._field == "{attributes[0]}" or r._field == "{attributes[1]} or (...)")
+    |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
     """
 
     def __init__(self):
