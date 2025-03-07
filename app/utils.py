@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import inspect
 from pathlib import Path
+import os
 
 
 def calculate_w_a_difference(df, gases):
@@ -55,6 +56,11 @@ def get_config(file: str) -> dict:
 def _get_caller_directory(stack_position: int) -> Path:
     caller_file = inspect.stack()[stack_position].filename
     return Path(caller_file).parent
+
+
+def check_and_create_directory(path: str) -> None:
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 
 def plot_results(plot_path: str, *args) -> None:
