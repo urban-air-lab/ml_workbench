@@ -5,6 +5,8 @@ import torch
 class PytorchModelBase(nn.Module):
     def __init__(self):
         super().__init__()
+        self.training_loss = None
+        self.validation_loss = None
 
     def forward(self, inputs):
         return inputs
@@ -21,8 +23,11 @@ class PytorchModelBase(nn.Module):
             self.optimizer_function.zero_grad()
             cumulative_loss += loss.item()
 
+        loss = round((cumulative_loss / len(train_loader)), 4)
+        self.training_loss = loss
+
         print(f"Epoch [{epoch + 1}/{num_epochs}]")
-        print(f"Train Loss: {cumulative_loss / len(train_loader):.4f}")
+        print(f"Train Loss: {loss}")
 
     def validate(self, val_loader):
         self.eval()
@@ -33,7 +38,8 @@ class PytorchModelBase(nn.Module):
                 prediction = self.forward(x_values)
                 loss += self.loss_function(prediction, y_values).item()
 
-        print(f'Validation Loss: {loss / len(val_loader):.4f}')
+        loss = round((loss / len(val_loader)), 4)
+        print(f'Validation Loss: {loss}')
 
 
 class FeedForwardModel(PytorchModelBase):
