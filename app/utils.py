@@ -1,6 +1,4 @@
 import pandas as pd
-import keras
-from keras import Model
 import logging
 import yaml
 import matplotlib.pyplot as plt
@@ -31,13 +29,6 @@ def align_dataframes_by_time(df1, df2):
     df1_aligned = df1.loc[common_times]
     df2_aligned = df2.loc[common_times]
     return df1_aligned, df2_aligned
-
-
-def train_model(model: Model, config: dict, inputs: pd.DataFrame, targets: pd.DataFrame, save: bool = False) -> None:
-    model.compile(optimizer=keras.optimizers.Adam(learning_rate=config["learning_rate"]), loss="mean_squared_error")
-    model.fit(x=inputs, y=targets, epochs=config["epochs"], batch_size=config["batch"])
-    if save:
-        model.save(f"./{config['name']}.keras")
 
 
 def get_config(file: str) -> dict:
