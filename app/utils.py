@@ -53,12 +53,3 @@ def check_and_create_directory(path: str) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
 
-
-def plot_results(plot_path: str, *args) -> None:
-    figure, axes = plt.subplots(nrows=len(args), figsize=(10, 10))
-    for index, (values, name) in enumerate(args):
-        sns.lineplot(x=values.index.tolist(), y=values.values.flatten(), ax=axes[index])
-        axes[index].set_title(name)
-        axes[index].grid()
-    plt.savefig(plot_path)
-    plt.show()
