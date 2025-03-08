@@ -37,10 +37,10 @@ class PytorchModelBase(nn.Module):
 
 
 class FeedForwardModel(PytorchModelBase):
-    def __init__(self, learning_rate: float):
+    def __init__(self, input_shape: int, learning_rate: float):
         super().__init__()
-        self.linear1 = nn.Linear(30, 50)
-        self.linear2 = nn.Linear(50, 1)
+        self.linear1 = nn.Linear(input_shape, 16)
+        self.linear2 = nn.Linear(16, 1)
         self.activation_function = nn.ReLU()
         self.loss_function = nn.MSELoss()
         self.optimizer_function = torch.optim.Adam(self.parameters(), lr=learning_rate)
