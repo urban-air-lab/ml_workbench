@@ -1,15 +1,17 @@
-import pandas as pd
-from sklearn.model_selection import train_test_split
 from app.database.Influx_db_connector import InfluxDBConnector
 from app.database.influx_buckets import InfluxBuckets
 from app.database.influx_query_builder import InfluxQueryBuilder
-from app.machine_learning.ModelFactory import create_feedforward_model
-from app.utils import calculate_w_a_difference, train_model, get_config, plot_results, align_dataframes_by_time
+import pandas as pd
+import torch
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader, TensorDataset
+from app.machine_learning.PytorchModels import FeedForwardModel
+from app.utils import calculate_w_a_difference, get_config, align_dataframes_by_time
 
 if __name__ == "__main__":
     connection = InfluxDBConnector()
 
-    inputs_query = InfluxQueryBuilder()\
+    inputs_query = InfluxQueryBuilder() \
         .set_bucket(InfluxBuckets.AQSN_MINUTE_CALIBRATION_BUCKET.value) \
         .set_range("2024-11-16T00:00:00Z", "2025-01-06T23:00:00Z") \
         .set_measurement("sont_c") \
@@ -23,7 +25,7 @@ if __name__ == "__main__":
         .build()
     input_data = connection.query_dataframe(inputs_query)
 
-    target_query = InfluxQueryBuilder()\
+    target_query = InfluxQueryBuilder() \
         .set_bucket(InfluxBuckets.LUBW_MINUTE_BUCKET.value) \
         .set_range("2024-11-16T00:00:00Z", "2025-01-06T23:00:00Z") \
         .set_measurement("DEBW015") \
@@ -35,18 +37,31 @@ if __name__ == "__main__":
     gases = ["NO2", "NO", "O3"]
     align_input_differences = calculate_w_a_difference(align_inputs, gases)
 
-    x_train, x_test, y_train, y_test = train_test_split(align_input_differences,
+    inputs_train, inputs_test, targets_train, targets_test = train_test_split(align_input_differences,
                                                         align_targets["NO2"],
                                                         test_size=0.2,
                                                         shuffle=False)
 
-    feedforward_model = create_feedforward_model()
-    train_model(model=feedforward_model,
-                config=get_config("workflow_config.yaml"),
-                inputs=x_train,
-                targets=y_train,
-                save=True)
+    inputs_train_tensor = torch.tensor(inputs_train.values, dtype=torch.float32)
+    inputs_test_tensor = torch.tensor(inputs_test.values, dtype=torch.float32)
+    targets_train_tensor = torch.tensor(targets_train.values, dtype=torch.float32)
+    targets_test_tensor = torch.tensor(targets_test.values, dtype=torch.float32)
 
-    predictions = feedforward_model.predict(x_test)
-    predictions_dataframe = pd.DataFrame(predictions, index=y_test.index)
-    plot_results('./database_workflow_1.png', (y_test, "y_test"), (predictions_dataframe, "predictions"))
+    targets_train_tensor = targets_train_tensor.unsqueeze(1)
+    targets_test_tensor = targets_test_tensor.unsqueeze(1)
+
+    hyperparameters = get_config("workflow_config.yaml")
+
+    train_loader = DataLoader(dataset=TensorDataset(inputs_train_tensor, targets_train_tensor),
+                              batch_size=hyperparameters["batch_size"], shuffle=True)
+    test_loader = DataLoader(dataset=TensorDataset(inputs_test_tensor, targets_test_tensor),
+                             batch_size=hyperparameters["batch_size"], shuffle=True)
+
+    model = FeedForwardModel(3, hyperparameters["learning_rate"])
+
+    for epoch in range(hyperparameters["epochs"]):
+        model.backward(train_loader, epoch, hyperparameters["epochs"])
+        model.validate(test_loader)
+
+    predictions = model.forward(inputs_test_tensor)
+    print(predictions)
