@@ -2,7 +2,7 @@ from torch import nn
 import torch
 
 
-class PytorchModelBase(nn.Module):
+class PytorchModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.training_loss = None
@@ -42,7 +42,7 @@ class PytorchModelBase(nn.Module):
         print(f'Validation Loss: {loss}')
 
 
-class FeedForwardModel(PytorchModelBase):
+class FeedForwardModel(PytorchModel):
     def __init__(self, input_shape: int, learning_rate: float):
         super().__init__()
         self.linear1 = nn.Linear(input_shape, 16)
