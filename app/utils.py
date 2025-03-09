@@ -44,12 +44,19 @@ def get_config(file: str) -> dict:
         logging.error(f"An unexpected error occurred: {e}")
 
 
+def create_run_directory() -> Path:
+    os_independent_path = _get_caller_directory(2)
+    results_path = os_independent_path / Path("results")
+
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
+
+    number_of_files = len(os.listdir(results_path))
+    run_path = os_independent_path / Path("results" / Path(f"run_{number_of_files + 1}"))
+    os.makedirs(run_path)
+    return run_path
+
+
 def _get_caller_directory(stack_position: int) -> Path:
     caller_file = inspect.stack()[stack_position].filename
     return Path(caller_file).parent
-
-
-def check_and_create_directory(path: str) -> None:
-    if not os.path.exists(path):
-        os.makedirs(path)
-
