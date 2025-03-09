@@ -38,7 +38,6 @@ if __name__ == "__main__":
     align_input_differences = calculate_w_a_difference(align_inputs, gases)
 
     # TODO: Normalisierung der Daten
-
     inputs_train, inputs_test, targets_train, targets_test = train_test_split_pytorch(align_input_differences,
                                                                                       align_targets["NO2"],
                                                                                       test_size=0.2,
@@ -51,7 +50,10 @@ if __name__ == "__main__":
     test_loader = DataLoader(dataset=TensorDataset(inputs_test, targets_test),
                              batch_size=hyperparameters["batch_size"], shuffle=True)
 
-    model: PytorchModel = FeedForwardModel(5, hyperparameters["learning_rate"])
+    model: PytorchModel = FeedForwardModel(
+                                input_shape=len(inputs_train.columns),
+                                learning_rate=hyperparameters["learning_rate"]
+                                )
     for epoch in range(hyperparameters["epochs"]):
         model.backward(train_loader, epoch, hyperparameters["epochs"])
         model.validate(test_loader)
