@@ -1,17 +1,15 @@
 import json
-import os
 from pathlib import Path
-
 from app.database.Influx_db_connector import InfluxDBConnector
 from app.database.influx_buckets import InfluxBuckets
 from app.database.influx_query_builder import InfluxQueryBuilder
 import pandas as pd
-import torch
-from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
 from app.machine_learning.PytorchModels import FeedForwardModel, PytorchModel
-from app.utils import calculate_w_a_difference, get_config, align_dataframes_by_time, create_run_directory
+from app.utils import calculate_w_a_difference, get_config, align_dataframes_by_time, create_run_directory, \
+    train_test_split_pytorch
 import matplotlib.pyplot as plt
+
 
 if __name__ == "__main__":
     connection = InfluxDBConnector()
@@ -45,24 +43,16 @@ if __name__ == "__main__":
 
     #TODO: Normalisierung der Daten
 
-    inputs_train, inputs_test, targets_train, targets_test = train_test_split(align_input_differences,
+    inputs_train, inputs_test, targets_train, targets_test = train_test_split_pytorch(align_input_differences,
                                                         align_targets["NO2"],
                                                         test_size=0.2,
                                                         shuffle=False)
 
-    inputs_train_tensor = torch.tensor(inputs_train.values, dtype=torch.float32)
-    inputs_test_tensor = torch.tensor(inputs_test.values, dtype=torch.float32)
-    targets_train_tensor = torch.tensor(targets_train.values, dtype=torch.float32)
-    targets_test_tensor = torch.tensor(targets_test.values, dtype=torch.float32)
-
-    targets_train_tensor = targets_train_tensor.unsqueeze(1)
-    targets_test_tensor = targets_test_tensor.unsqueeze(1)
-
     hyperparameters = get_config("workflow_config.yaml")
 
-    train_loader = DataLoader(dataset=TensorDataset(inputs_train_tensor, targets_train_tensor),
+    train_loader = DataLoader(dataset=TensorDataset(inputs_train, targets_train),
                               batch_size=hyperparameters["batch_size"], shuffle=True)
-    test_loader = DataLoader(dataset=TensorDataset(inputs_test_tensor, targets_test_tensor),
+    test_loader = DataLoader(dataset=TensorDataset(inputs_test, targets_test),
                              batch_size=hyperparameters["batch_size"], shuffle=True)
 
     model: PytorchModel = FeedForwardModel(3, hyperparameters["learning_rate"])
@@ -71,7 +61,7 @@ if __name__ == "__main__":
         model.backward(train_loader, epoch, hyperparameters["epochs"])
         model.validate(test_loader)
 
-    prediction = model.forward(inputs_test_tensor)
+    prediction = model.forward(inputs_test)
 
     run_directory = create_run_directory()
 

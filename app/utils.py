@@ -1,8 +1,8 @@
 import pandas as pd
 import logging
 import yaml
-import matplotlib.pyplot as plt
-import seaborn as sns
+import torch
+from sklearn.model_selection import train_test_split
 import inspect
 from pathlib import Path
 import os
@@ -29,6 +29,23 @@ def align_dataframes_by_time(df1, df2):
     df1_aligned = df1.loc[common_times]
     df2_aligned = df2.loc[common_times]
     return df1_aligned, df2_aligned
+
+
+def train_test_split_pytorch(inputs, targets, test_size, shuffle):
+    inputs_train, inputs_test, targets_train, targets_test = train_test_split(inputs,
+                                                                                targets,
+                                                                                test_size=test_size,
+                                                                                shuffle=shuffle)
+
+    inputs_train_tensor = torch.tensor(inputs_train.values, dtype=torch.float32)
+    inputs_test_tensor = torch.tensor(inputs_test.values, dtype=torch.float32)
+    targets_train_tensor = torch.tensor(targets_train.values, dtype=torch.float32)
+    targets_test_tensor = torch.tensor(targets_test.values, dtype=torch.float32)
+
+    targets_train_tensor = targets_train_tensor.unsqueeze(1)
+    targets_test_tensor = targets_test_tensor.unsqueeze(1)
+
+    return inputs_train_tensor, inputs_test_tensor, targets_train_tensor, targets_test_tensor
 
 
 def get_config(file: str) -> dict:
