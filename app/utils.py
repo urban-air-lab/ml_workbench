@@ -6,6 +6,10 @@ from sklearn.model_selection import train_test_split
 import inspect
 from pathlib import Path
 import os
+import json
+import matplotlib.pyplot as plt
+
+from app.machine_learning.PytorchModels import PytorchModel
 
 
 def calculate_w_a_difference(dataframe, gases):
@@ -56,6 +60,32 @@ def add_dimension(targets_train_tensor):
 def map_to_tensor(inputs_train):
     inputs_train_tensor = torch.tensor(inputs_train.values, dtype=torch.float32)
     return inputs_train_tensor
+
+
+def create_result_data(true_values: torch.Tensor, prediction_values: torch.Tensor) -> pd.DataFrame:
+    compare_dataframe = pd.DataFrame()
+    compare_dataframe["True"] = true_values.detach().numpy().flatten()
+    compare_dataframe["Prediction"] = prediction_values.detach().numpy().flatten()
+    return compare_dataframe
+
+
+def save_parameters(hyperparameters: dict,
+                    model: PytorchModel,
+                    directory: Path) -> None:
+    parameters = hyperparameters
+    parameters["training_loss"] = model.training_loss
+    parameters["validation_loss"] = model.validation_loss
+    with open(directory / Path("parameters.json"), 'w') as convert_file:
+        convert_file.write(json.dumps(parameters))
+
+
+def save_predictions(dataframe: pd.DataFrame, directory: Path) -> None:
+    dataframe.to_csv(directory / Path("predictions.csv"))
+
+
+def save_plot(results, directory: Path):
+    plt.plot(results)
+    plt.savefig(directory / Path("predictions.png"))
 
 
 def get_config(file: str) -> dict:
