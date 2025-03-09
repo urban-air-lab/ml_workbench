@@ -1,7 +1,5 @@
 from influxdb_client import InfluxDBClient
 import pandas as pd
-
-# TODO: remove bucket parameter
 from app.utils import get_config
 
 
