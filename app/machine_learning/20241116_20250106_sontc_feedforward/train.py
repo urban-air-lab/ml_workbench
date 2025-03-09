@@ -5,6 +5,8 @@ from app.database.influx_buckets import InfluxBuckets
 from app.database.influx_query_builder import InfluxQueryBuilder
 import pandas as pd
 from torch.utils.data import DataLoader, TensorDataset
+
+from app.machine_learning import Sensors
 from app.machine_learning.PytorchModels import FeedForwardModel, PytorchModel
 from app.utils import calculate_w_a_difference, get_config, align_dataframes_by_time, create_run_directory, \
     train_test_split_pytorch
@@ -18,7 +20,7 @@ if __name__ == "__main__":
     inputs_query = InfluxQueryBuilder() \
         .set_bucket(InfluxBuckets.AQSN_MINUTE_CALIBRATION_BUCKET.value) \
         .set_range("2024-11-16T00:00:00Z", "2025-01-06T23:00:00Z") \
-        .set_measurement("sont_c") \
+        .set_measurement(Sensors.AQSNSensors.SONT_C.value) \
         .set_fields(["RAW_ADC_NO2_W",
                      "RAW_ADC_NO2_A",
                      "RAW_ADC_NO_W",
@@ -32,7 +34,7 @@ if __name__ == "__main__":
     target_query = InfluxQueryBuilder() \
         .set_bucket(InfluxBuckets.LUBW_MINUTE_BUCKET.value) \
         .set_range("2024-11-16T00:00:00Z", "2025-01-06T23:00:00Z") \
-        .set_measurement("DEBW015") \
+        .set_measurement(Sensors.LUBWSensors.DEBW015.value) \
         .set_fields(["NO2"]) \
         .build()
     target_data = connection.query_dataframe(target_query)
