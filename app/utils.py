@@ -9,7 +9,7 @@ import os
 import json
 import matplotlib.pyplot as plt
 
-from app.machine_learning.PytorchModels import PytorchModel
+from app.machine_learning.models_pytorch import PytorchModel
 
 
 def calculate_w_a_difference(dataframe, gases):
