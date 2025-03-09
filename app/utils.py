@@ -37,15 +37,25 @@ def train_test_split_pytorch(inputs, targets, test_size, shuffle):
                                                                                 test_size=test_size,
                                                                                 shuffle=shuffle)
 
-    inputs_train_tensor = torch.tensor(inputs_train.values, dtype=torch.float32)
-    inputs_test_tensor = torch.tensor(inputs_test.values, dtype=torch.float32)
-    targets_train_tensor = torch.tensor(targets_train.values, dtype=torch.float32)
-    targets_test_tensor = torch.tensor(targets_test.values, dtype=torch.float32)
+    inputs_train_tensor = map_to_tensor(inputs_train)
+    inputs_test_tensor = map_to_tensor(inputs_test)
+    targets_train_tensor = map_to_tensor(targets_train)
+    targets_test_tensor = map_to_tensor(targets_test)
 
-    targets_train_tensor = targets_train_tensor.unsqueeze(1)
-    targets_test_tensor = targets_test_tensor.unsqueeze(1)
+    targets_train_tensor = add_dimension(targets_train_tensor)
+    targets_test_tensor = add_dimension(targets_test_tensor)
 
     return inputs_train_tensor, inputs_test_tensor, targets_train_tensor, targets_test_tensor
+
+
+def add_dimension(targets_train_tensor):
+    targets_train_tensor = targets_train_tensor.unsqueeze(1)
+    return targets_train_tensor
+
+
+def map_to_tensor(inputs_train):
+    inputs_train_tensor = torch.tensor(inputs_train.values, dtype=torch.float32)
+    return inputs_train_tensor
 
 
 def get_config(file: str) -> dict:
