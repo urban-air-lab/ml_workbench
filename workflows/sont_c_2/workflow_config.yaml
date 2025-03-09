@@ -1,4 +1,0 @@
-name: feedforward_model
-epochs: 3
-learning_rate: 0.001
-batch: 3
