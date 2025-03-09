@@ -39,6 +39,7 @@ class PytorchModel(nn.Module):
                 loss += self.loss_function(prediction, y_values).item()
 
         loss = round((loss / len(val_loader)), 4)
+        self.validation_loss = loss
         print(f'Validation Loss: {loss}')
 
 
