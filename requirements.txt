@@ -4,7 +4,6 @@ pandas==2.2.3
 pytest==8.3.4
 PyYAML==6.0.2
 scikit_learn==1.6.1
-statsmodels==0.14.4
 
 --extra-index-url https://download.pytorch.org/whl/cu126
 torch

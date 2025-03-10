@@ -2,8 +2,7 @@ from app.database import sensors
 from app.database.Influx_db_connector import InfluxDBConnector
 from app.database.influx_buckets import InfluxBuckets
 from app.database.influx_query_builder import InfluxQueryBuilder
-from torch.utils.data import DataLoader, TensorDataset
-from app.machine_learning.models_pytorch import FeedForwardModel
+from app.machine_learning.models_basic import RandomForestModel
 from app.utils import *
 
 if __name__ == "__main__":
@@ -38,30 +37,17 @@ if __name__ == "__main__":
     align_input_differences = calculate_w_a_difference(align_inputs, gases)
 
     # TODO: Normalisierung der Daten
-    inputs_train, inputs_test, targets_train, targets_test = train_test_split_pytorch(align_input_differences,
+    inputs_train, inputs_test, targets_train, targets_test = train_test_split(align_input_differences,
                                                                                       align_targets["NO2"],
                                                                                       test_size=0.2,
                                                                                       shuffle=False)
 
-    hyperparameters = get_config("workflow_config.yaml")
-
-    train_loader = DataLoader(dataset=TensorDataset(inputs_train, targets_train),
-                              batch_size=hyperparameters["batch_size"], shuffle=True)
-    test_loader = DataLoader(dataset=TensorDataset(inputs_test, targets_test),
-                             batch_size=hyperparameters["batch_size"], shuffle=True)
-
-    model: PytorchModel = FeedForwardModel(
-                                input_shape=inputs_train.shape[1],
-                                learning_rate=hyperparameters["learning_rate"]
-                                )
-    for epoch in range(hyperparameters["epochs"]):
-        model.backward(train_loader, epoch, hyperparameters["epochs"])
-        model.validate(test_loader)
-    prediction = model.forward(inputs_test)
+    model = RandomForestModel()
+    model.fit(inputs_train, targets_train)
+    prediction = model.predict(inputs_test)
 
     run_directory = create_run_directory()
-    results = create_result_data_from_pytorch(targets_test, prediction)
+    results = create_result_data(targets_test, prediction)
     calculate_and_save_evaluation(results, run_directory)
-    save_parameters_from_pytorch(hyperparameters, model, run_directory)
     save_predictions(results, run_directory)
     save_plot(results, run_directory)

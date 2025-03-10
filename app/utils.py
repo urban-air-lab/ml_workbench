@@ -2,6 +2,7 @@ import pandas as pd
 import logging
 import yaml
 import torch
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 import inspect
 from pathlib import Path
@@ -62,21 +63,41 @@ def map_to_tensor(inputs_train):
     return inputs_train_tensor
 
 
-def create_result_data(true_values: torch.Tensor, prediction_values: torch.Tensor) -> pd.DataFrame:
+def create_result_data_from_pytorch(true_values: torch.Tensor, prediction_values: torch.Tensor) -> pd.DataFrame:
     compare_dataframe = pd.DataFrame()
     compare_dataframe["True"] = true_values.detach().numpy().flatten()
-    compare_dataframe["Prediction"] = prediction_values.detach().numpy().flatten()
+    compare_dataframe["Predictions"] = prediction_values.detach().numpy().flatten()
     return compare_dataframe
 
 
-def save_parameters(hyperparameters: dict,
-                    model: PytorchModel,
-                    directory: Path) -> None:
+def create_result_data(true_values, prediction_values) -> pd.DataFrame:
+    compare_dataframe = pd.DataFrame()
+    compare_dataframe["True"] = true_values
+    compare_dataframe["Predictions"] = prediction_values
+    return compare_dataframe
+
+
+def save_parameters_from_pytorch(hyperparameters: dict,
+                                 model: PytorchModel,
+                                 directory: Path) -> None:
     parameters = hyperparameters
     parameters["training_loss"] = model.training_loss
     parameters["validation_loss"] = model.validation_loss
     with open(directory / Path("parameters.json"), 'w') as convert_file:
         convert_file.write(json.dumps(parameters))
+
+
+def calculate_and_save_evaluation(dataframe: pd.DataFrame, directory: Path) -> None:
+    if not {"True", "Predictions"}.issubset(dataframe.columns):
+        raise ValueError("DataFrame must contain 'True' and 'Predictions' columns.")
+
+    metrics = {
+        "MAE": mean_absolute_error(dataframe["True"], dataframe["Predictions"]),
+        "MSE": mean_squared_error(dataframe["True"], dataframe["Predictions"]),
+        "R-squared": r2_score(dataframe["True"], dataframe["Predictions"])
+    }
+    with open(directory / Path("metrics.json"), 'w') as convert_file:
+        convert_file.write(json.dumps(metrics))
 
 
 def save_predictions(dataframe: pd.DataFrame, directory: Path) -> None:
