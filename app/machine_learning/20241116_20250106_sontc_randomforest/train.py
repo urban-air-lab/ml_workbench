@@ -1,7 +1,7 @@
+from app.database import sensors
 from app.database.Influx_db_connector import InfluxDBConnector
 from app.database.influx_buckets import InfluxBuckets
 from app.database.influx_query_builder import InfluxQueryBuilder
-from app.machine_learning import sensors
 from app.machine_learning.models_basic import RandomForestModel
 from app.utils import *
 
