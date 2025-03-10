@@ -8,5 +8,5 @@ class LUBWSensors(Enum):
 
 class AQSNSensors(Enum):
     SONT_A = "sont_a"
-    SONTA_B = "sont_b"
+    SONT_B = "sont_b"
     SONT_C = "sont_c"
