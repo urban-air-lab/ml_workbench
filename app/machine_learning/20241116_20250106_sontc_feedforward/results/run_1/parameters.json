@@ -1,0 +1,1 @@
+{"name": "20241116_20250106_sontc_feedforward", "epochs": 10, "learning_rate": 0.001, "batch_size": 16, "training_loss": 14.2882, "validation_loss": 17.3584}
