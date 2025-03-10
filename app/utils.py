@@ -62,16 +62,16 @@ def map_to_tensor(inputs_train):
     return inputs_train_tensor
 
 
-def create_result_data(true_values: torch.Tensor, prediction_values: torch.Tensor) -> pd.DataFrame:
+def create_result_data_from_pytorch(true_values: torch.Tensor, prediction_values: torch.Tensor) -> pd.DataFrame:
     compare_dataframe = pd.DataFrame()
     compare_dataframe["True"] = true_values.detach().numpy().flatten()
     compare_dataframe["Prediction"] = prediction_values.detach().numpy().flatten()
     return compare_dataframe
 
 
-def save_parameters(hyperparameters: dict,
-                    model: PytorchModel,
-                    directory: Path) -> None:
+def save_parameters_from_pytorch(hyperparameters: dict,
+                                 model: PytorchModel,
+                                 directory: Path) -> None:
     parameters = hyperparameters
     parameters["training_loss"] = model.training_loss
     parameters["validation_loss"] = model.validation_loss

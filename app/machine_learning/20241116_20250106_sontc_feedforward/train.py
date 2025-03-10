@@ -60,7 +60,7 @@ if __name__ == "__main__":
     prediction = model.forward(inputs_test)
 
     run_directory = create_run_directory()
-    results = create_result_data(targets_test, prediction)
-    save_parameters(hyperparameters, model, run_directory)
+    results = create_result_data_from_pytorch(targets_test, prediction)
+    save_parameters_from_pytorch(hyperparameters, model, run_directory)
     save_predictions(results, run_directory)
     save_plot(results, run_directory)
