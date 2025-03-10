@@ -51,7 +51,7 @@ if __name__ == "__main__":
                              batch_size=hyperparameters["batch_size"], shuffle=True)
 
     model: PytorchModel = FeedForwardModel(
-                                input_shape=len(inputs_train.columns),
+                                input_shape=inputs_train.shape[1],
                                 learning_rate=hyperparameters["learning_rate"]
                                 )
     for epoch in range(hyperparameters["epochs"]):
