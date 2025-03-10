@@ -61,6 +61,7 @@ if __name__ == "__main__":
 
     run_directory = create_run_directory()
     results = create_result_data_from_pytorch(targets_test, prediction)
+    calculate_and_save_evaluation(results, run_directory)
     save_parameters_from_pytorch(hyperparameters, model, run_directory)
     save_predictions(results, run_directory)
     save_plot(results, run_directory)
