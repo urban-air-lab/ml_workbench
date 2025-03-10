@@ -69,6 +69,13 @@ def create_result_data_from_pytorch(true_values: torch.Tensor, prediction_values
     return compare_dataframe
 
 
+def create_result_data(true_values, prediction_values) -> pd.DataFrame:
+    compare_dataframe = pd.DataFrame()
+    compare_dataframe["True"] = true_values
+    compare_dataframe["Prediction"] = prediction_values
+    return compare_dataframe
+
+
 def save_parameters_from_pytorch(hyperparameters: dict,
                                  model: PytorchModel,
                                  directory: Path) -> None:
