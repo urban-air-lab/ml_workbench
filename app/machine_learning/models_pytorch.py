@@ -3,6 +3,10 @@ import torch
 
 
 class PytorchModel(nn.Module):
+    """
+    Basic pytorch class, containing forward propagation,
+    back propagation and validation steps for model training
+    """
     def __init__(self):
         super().__init__()
         self.training_loss = None
@@ -43,7 +47,10 @@ class PytorchModel(nn.Module):
         print(f'Validation Loss: {loss}')
 
 
-class FeedForwardModel(PytorchModel):
+class FeedForwardModelImpl(PytorchModel):
+    """
+    Model for basic feed forward neuronal network
+    """
     def __init__(self, input_shape: int, learning_rate: float):
         super().__init__()
         self.linear1 = nn.Linear(input_shape, 16)
