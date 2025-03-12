@@ -1,8 +1,9 @@
+from sklearn.ensemble import RandomForestRegressor
+
 from app.database import sensors
 from app.database.Influx_db_connector import InfluxDBConnector
 from app.database.influx_buckets import InfluxBuckets
 from app.database.influx_query_builder import InfluxQueryBuilder
-from app.machine_learning.models_basic import RandomForestModel
 from app.utils import *
 
 if __name__ == "__main__":
@@ -42,7 +43,7 @@ if __name__ == "__main__":
                                                                                       test_size=0.2,
                                                                                       shuffle=False)
 
-    model = RandomForestModel()
+    model = RandomForestRegressor()
     model.fit(inputs_train, targets_train)
     prediction = model.predict(inputs_test)
 
