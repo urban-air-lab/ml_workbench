@@ -35,10 +35,10 @@ if __name__ == "__main__":
 
     align_inputs, align_targets = align_dataframes_by_time(input_data, target_data)
     gases = ["NO2", "NO", "O3"]
-    align_input_differences = calculate_w_a_difference(align_inputs, gases)
+    input_features = calculate_w_a_difference(align_inputs, gases)
 
     # TODO: Normalisierung der Daten
-    inputs_train, inputs_test, targets_train, targets_test = train_test_split_pytorch(align_input_differences,
+    inputs_train, inputs_test, targets_train, targets_test = train_test_split_pytorch(input_features,
                                                                                       align_targets["NO2"],
                                                                                       test_size=0.2,
                                                                                       shuffle=False)

@@ -47,7 +47,7 @@ class PytorchModel(nn.Module):
         print(f'Validation Loss: {loss}')
 
 
-class FeedForwardModelImpl(PytorchModel):
+class FeedForwardModel(PytorchModel):
     """
     Model for basic feed forward neuronal network
     """
