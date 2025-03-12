@@ -70,11 +70,12 @@ def create_result_data_from_pytorch(true_values: torch.Tensor, prediction_values
     return compare_dataframe
 
 
-def create_result_data(true_values, prediction_values) -> pd.DataFrame:
+def create_result_data(true_values, prediction_values, input_values) -> pd.DataFrame:
     compare_dataframe = pd.DataFrame()
     compare_dataframe["True"] = true_values
     compare_dataframe["Predictions"] = prediction_values
     compare_dataframe.index = true_values.index
+    compare_dataframe = pd.concat([compare_dataframe, input_values], axis=1)
     return compare_dataframe
 
 
