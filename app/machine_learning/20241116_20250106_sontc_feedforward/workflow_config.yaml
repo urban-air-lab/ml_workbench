@@ -1,4 +1,4 @@
 name: 20241116_20250106_sontc_feedforward
-epochs: 10
+epochs: 5
 learning_rate: 0.001
 batch_size: 16

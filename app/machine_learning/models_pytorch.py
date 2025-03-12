@@ -54,7 +54,8 @@ class FeedForwardModel(PytorchModel):
     def __init__(self, input_shape: int, learning_rate: float):
         super().__init__()
         self.linear1 = nn.Linear(input_shape, 16)
-        self.linear2 = nn.Linear(16, 1)
+        self.linear2 = nn.Linear(16, 32)
+        self.linear3 = nn.Linear(32, 1)
         self.activation_function = nn.ReLU()
         self.loss_function = nn.MSELoss()
         self.optimizer_function = torch.optim.Adam(self.parameters(), lr=learning_rate)
@@ -62,4 +63,5 @@ class FeedForwardModel(PytorchModel):
     def forward(self, inputs):
         inputs = self.activation_function(self.linear1(inputs))
         inputs = self.activation_function(self.linear2(inputs))
+        inputs = self.activation_function(self.linear3(inputs))
         return inputs
