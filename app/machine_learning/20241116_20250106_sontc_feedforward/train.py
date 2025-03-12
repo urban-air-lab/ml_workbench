@@ -38,16 +38,22 @@ if __name__ == "__main__":
     input_features = calculate_w_a_difference(align_inputs, gases)
 
     # TODO: Normalisierung der Daten
-    inputs_train, inputs_test, targets_train, targets_test = train_test_split_pytorch(input_features,
+    inputs_train, inputs_test, targets_train, targets_test = train_test_split(input_features,
                                                                                       align_targets["NO2"],
                                                                                       test_size=0.2,
                                                                                       shuffle=False)
 
+    inputs_train_tensor, inputs_test_tensor, targets_train_tensor, targets_test_tensor = convert_to_pytorch_tensors(inputs_train,
+                                                                                        inputs_test,
+                                                                                        targets_train,
+                                                                                        targets_test)
+
+
     hyperparameters = get_config("workflow_config.yaml")
 
-    train_loader = DataLoader(dataset=TensorDataset(inputs_train, targets_train),
+    train_loader = DataLoader(dataset=TensorDataset(inputs_train_tensor, targets_train_tensor),
                               batch_size=hyperparameters["batch_size"], shuffle=True)
-    test_loader = DataLoader(dataset=TensorDataset(inputs_test, targets_test),
+    test_loader = DataLoader(dataset=TensorDataset(inputs_test_tensor, targets_test_tensor),
                              batch_size=hyperparameters["batch_size"], shuffle=True)
 
     model: PytorchModel = FeedForwardModel(
@@ -57,10 +63,10 @@ if __name__ == "__main__":
     for epoch in range(hyperparameters["epochs"]):
         model.backward(train_loader, epoch, hyperparameters["epochs"])
         model.validate(test_loader)
-    prediction = model.forward(inputs_test)
+    prediction = model.forward(inputs_test_tensor)
 
     run_directory = create_run_directory()
-    results = create_result_data_from_pytorch(targets_test, prediction)
+    results = create_result_data(targets_test, prediction, inputs_test)
     calculate_and_save_evaluation(results, run_directory)
     save_parameters_from_pytorch(hyperparameters, model, run_directory)
     save_predictions(results, run_directory)

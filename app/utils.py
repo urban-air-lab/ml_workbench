@@ -36,12 +36,7 @@ def align_dataframes_by_time(df1, df2):
     return df1_aligned, df2_aligned
 
 
-def train_test_split_pytorch(inputs, targets, test_size, shuffle):
-    inputs_train, inputs_test, targets_train, targets_test = train_test_split(inputs,
-                                                                                targets,
-                                                                                test_size=test_size,
-                                                                                shuffle=shuffle)
-
+def convert_to_pytorch_tensors(inputs_train, inputs_test, targets_train, targets_test):
     inputs_train_tensor = map_to_tensor(inputs_train)
     inputs_test_tensor = map_to_tensor(inputs_test)
     targets_train_tensor = map_to_tensor(targets_train)
@@ -63,14 +58,10 @@ def map_to_tensor(inputs_train):
     return inputs_train_tensor
 
 
-def create_result_data_from_pytorch(true_values: torch.Tensor, prediction_values: torch.Tensor) -> pd.DataFrame:
-    compare_dataframe = pd.DataFrame()
-    compare_dataframe["True"] = true_values.detach().numpy().flatten()
-    compare_dataframe["Predictions"] = prediction_values.detach().numpy().flatten()
-    return compare_dataframe
-
-
 def create_result_data(true_values, prediction_values, input_values) -> pd.DataFrame:
+    if type(prediction_values) == torch.Tensor:
+        prediction_values = prediction_values.detach().numpy().flatten()
+
     compare_dataframe = pd.DataFrame()
     compare_dataframe["True"] = true_values
     compare_dataframe["Predictions"] = prediction_values
