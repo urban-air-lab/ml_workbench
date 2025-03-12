@@ -74,6 +74,7 @@ def create_result_data(true_values, prediction_values) -> pd.DataFrame:
     compare_dataframe = pd.DataFrame()
     compare_dataframe["True"] = true_values
     compare_dataframe["Predictions"] = prediction_values
+    compare_dataframe.index = true_values.index
     return compare_dataframe
 
 
@@ -104,9 +105,21 @@ def save_predictions(dataframe: pd.DataFrame, directory: Path) -> None:
     dataframe.to_csv(directory / Path("predictions.csv"))
 
 
-def save_plot(results, directory: Path):
-    plt.plot(results)
-    plt.savefig(directory / Path("predictions.png"))
+def save_plot(results: pd.DataFrame, directory: Path) -> None:
+    plt.figure(figsize=(10, 5))
+
+    plt.plot(results.index, results["True"], label="True", linestyle="-")
+    plt.plot(results.index, results["Predictions"], label="Predictions", linestyle="--")
+
+    plt.xlabel("Date")
+    plt.ylabel("Values")
+    plt.title("True vs Predictions")
+    plt.legend()
+    plt.grid(True)
+    plt.xticks(rotation=45)
+
+    plt.savefig(directory / "predictions.png", bbox_inches="tight")
+    plt.close()
 
 
 def get_config(file: str) -> dict:
