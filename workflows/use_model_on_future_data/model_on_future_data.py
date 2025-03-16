@@ -35,7 +35,7 @@ sens_sont_c = 0.303
 model = load_model("../../models/feedforward_model.keras")
 
 futuredata_lubw = pd.read_csv("../../data/DEBW015_20241211-202241228.csv")
-futuredata_lubw = futuredata_lubw[:168]
+futuredata_lubw = futuredata_lubw[:405]
 futuredata_sont_c = pd.read_csv("../../data/sont_c_20241211-20241228.csv")
 futuredata_sont_c["electrode_difference_NO2"] = futuredata_sont_c["data_RAW_ADC_NO2_W"] - futuredata_sont_c["data_RAW_ADC_NO2_A"]
 futuredata_sont_c["electrode_difference_NO"] = futuredata_sont_c["data_RAW_ADC_NO_W"] - futuredata_sont_c["data_RAW_ADC_NO_A"]
@@ -46,7 +46,7 @@ futuredata_sont_c["alphasense_cali"] = futuredata_sont_c["alphasense_cali_ppb"] 
 
 futuredata_sont_c.set_index(keys="_time", inplace=True)
 futuredata_sont_c = futuredata_sont_c.resample("h").mean()
-futuredata_sont_c = futuredata_sont_c[:168]
+futuredata_sont_c = futuredata_sont_c[:405]
 # futuredata_sont_c = futuredata_sont_c[["electrode_difference_NO2"]]
 
 input_data = futuredata_sont_c[["electrode_difference_NO2"]]
@@ -55,13 +55,13 @@ input_data = input_data.to_numpy()
 # print(f"input_data shape: {input_data.shape}")
 # print(f"input_data dtypes: {input_data.ctypes}")
 prediction = model.predict(input_data)
-prediction = prediction * 1.33
+# prediction = prediction * 1.33
 
 date_range = pd.date_range("2024-12-11", periods=7, freq="D").strftime("%d.%m.%y")
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(16, 10))
-tick_positions = range(0, 168, 24)
-plt.xticks(tick_positions, date_range)
+# tick_positions = range(0, 168, 24)
+# plt.xticks(tick_positions, date_range)
 ax.set_xlabel("Datum")
 ax.plot(prediction, label="Sensor mit ML-korrigierten Daten", color = "coral")
 ax.plot(futuredata_lubw.index, futuredata_sont_c["alphasense_cali"], label="Sensor mit Herstellerkalibrierung", color = "limegreen")
