@@ -63,8 +63,8 @@ def create_result_data(true_values, prediction_values, input_values) -> pd.DataF
         prediction_values = prediction_values.detach().numpy().flatten()
 
     compare_dataframe = pd.DataFrame()
-    compare_dataframe["True"] = true_values
-    compare_dataframe["Predictions"] = prediction_values
+    compare_dataframe["True"] = round(true_values, 1)
+    compare_dataframe["Predictions"] = round(prediction_values, 1)
     compare_dataframe.index = true_values.index
     compare_dataframe = pd.concat([compare_dataframe, input_values], axis=1)
     return compare_dataframe
