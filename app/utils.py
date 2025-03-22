@@ -87,11 +87,11 @@ def calculate_and_save_evaluation(dataframe: pd.DataFrame, directory: Path) -> N
         raise ValueError("DataFrame must contain 'True' and 'Predictions' columns.")
 
     metrics = {
-        "MAE": mean_absolute_error(dataframe["True"], dataframe["Predictions"]),
-        "MSE": mean_squared_error(dataframe["True"], dataframe["Predictions"]),
-        "RMSE": root_mean_squared_error(dataframe["True"], dataframe["Predictions"]),
-        "MAPE": mean_absolute_percentage_error(dataframe["True"], dataframe["Predictions"]),
-        "R-squared": r2_score(dataframe["True"], dataframe["Predictions"])
+        "MAE": round(mean_absolute_error(dataframe["True"], dataframe["Predictions"]), 2),
+        "MSE": round(mean_squared_error(dataframe["True"], dataframe["Predictions"]), 2),
+        "RMSE": round(root_mean_squared_error(dataframe["True"], dataframe["Predictions"]), 2),
+        "MAPE": round((mean_absolute_percentage_error(dataframe["True"], dataframe["Predictions"]))*100, 2),
+        "R-squared": round(r2_score(dataframe["True"], dataframe["Predictions"]), 2)
     }
     with open(directory / Path("metrics.json"), 'w') as convert_file:
         convert_file.write(json.dumps(metrics))
