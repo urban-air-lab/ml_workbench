@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 import yaml
 import torch
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
 from sklearn.model_selection import train_test_split
 import inspect
 from pathlib import Path
@@ -87,6 +87,7 @@ def calculate_and_save_evaluation(dataframe: pd.DataFrame, directory: Path) -> N
     metrics = {
         "MAE": mean_absolute_error(dataframe["True"], dataframe["Predictions"]),
         "MSE": mean_squared_error(dataframe["True"], dataframe["Predictions"]),
+        "MAPE": mean_absolute_percentage_error(dataframe["True"], dataframe["Predictions"]),
         "R-squared": r2_score(dataframe["True"], dataframe["Predictions"])
     }
     with open(directory / Path("metrics.json"), 'w') as convert_file:
