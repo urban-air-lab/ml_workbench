@@ -10,6 +10,7 @@ from pathlib import Path
 import os
 import json
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 from app.machine_learning.models_pytorch import PytorchModel
 
