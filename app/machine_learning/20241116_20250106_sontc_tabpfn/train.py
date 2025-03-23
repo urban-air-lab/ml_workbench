@@ -1,9 +1,4 @@
-from sklearn.ensemble import RandomForestRegressor
 from tabpfn import TabPFNRegressor
-from tabpfn_extensions.rf_pfn import (
-    RandomForestTabPFNClassifier,
-    RandomForestTabPFNRegressor,
-)
 
 from app.database import sensors
 from app.database.Influx_db_connector import InfluxDBConnector
