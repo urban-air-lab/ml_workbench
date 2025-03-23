@@ -21,7 +21,7 @@ The data of the LUBW sensors is requests by a cronjob script. Data of AQSN senso
 To gather and store the data of the different sensor, AQSN-VS uses Mosquitto Message Broker and InfluxDB. 
 All components are deployed on a VServer hostet by cloud provider. 
 
-![alt text](aqsn_architecture.png)
+![alt text](aqsn_architecture.jpg)
 
 
 ## Project Setup
