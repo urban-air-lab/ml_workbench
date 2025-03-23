@@ -82,6 +82,11 @@ def save_parameters_from_pytorch(hyperparameters: dict,
         convert_file.write(json.dumps(parameters))
 
 
+def save_parameters(parameters, directory):
+    with open(directory / Path("parameters.json"), 'w') as convert_file:
+        convert_file.write(json.dumps(parameters))
+
+
 def calculate_and_save_evaluation(dataframe: pd.DataFrame, directory: Path) -> None:
     if not {"True", "Predictions"}.issubset(dataframe.columns):
         raise ValueError("DataFrame must contain 'True' and 'Predictions' columns.")
@@ -90,7 +95,7 @@ def calculate_and_save_evaluation(dataframe: pd.DataFrame, directory: Path) -> N
         "MAE": round(mean_absolute_error(dataframe["True"], dataframe["Predictions"]), 2),
         "MSE": round(mean_squared_error(dataframe["True"], dataframe["Predictions"]), 2),
         "RMSE": round(root_mean_squared_error(dataframe["True"], dataframe["Predictions"]), 2),
-        "MAPE": round((mean_absolute_percentage_error(dataframe["True"], dataframe["Predictions"]))*100, 2),
+        "MAPE": round((mean_absolute_percentage_error(dataframe["True"], dataframe["Predictions"])) * 100, 2),
         "R-squared": round(r2_score(dataframe["True"], dataframe["Predictions"]), 2)
     }
     with open(directory / Path("metrics.json"), 'w') as convert_file:
