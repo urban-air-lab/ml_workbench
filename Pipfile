@@ -17,7 +17,7 @@ scikit-learn = "*"
 influxdb-client = "*"
 numpy = "*"
 tabpfn = "*"
-torch = {version = "2.6.0", index = "downloadpytorch"}
+torch = {version = "2.6.0", index = "downloadpytorch", extras = ["cpu"]}
 flake8 = "*"
 
 [dev-packages]

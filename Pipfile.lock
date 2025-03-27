@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "df3d3df723b455445c5dbab8ca74f032699e914bd9eb0ae026ad9ac755895d4e"
+            "sha256": "255e7c6407498a7458b26335cd8edabc32220f7d68db7147194435218caeed1d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -1063,6 +1063,9 @@
             "version": "==2.2.1"
         },
         "torch": {
+            "extras": [
+                "cpu"
+            ],
             "hashes": [
                 "sha256:2356c759696f4e296a7a08e8146c6381ccf2da40990fe400264b189a8a6c4bab",
                 "sha256:2eea662d2d4ba57db2117d510c1baa47f49b1f327f9e91cf3a29d38f298d7f21",
