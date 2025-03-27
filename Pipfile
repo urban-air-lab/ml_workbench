@@ -18,6 +18,7 @@ influxdb-client = "*"
 numpy = "*"
 tabpfn = "*"
 torch = {version = "*", index = "downloadpytorch"}
+flake8 = "*"
 
 [dev-packages]
 
