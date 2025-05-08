@@ -3,7 +3,7 @@ from app.machine_learning.CSV_data_loader import CSVDataLoader
 from app.utils import *
 
 input_data = (CSVDataLoader("../data/minute_data_ual-1.csv")
-              .set_timespan("2024-11-15 00:00:00", "2025-01-07 23:59:00") #"2025-01-07 23:59:00"
+              .set_timespan("2024-11-14 00:00:00", "2025-01-07 23:59:00") #"2025-01-07 23:59:00"
               .get_data(["RAW_ADC_NO_W",
                          "RAW_ADC_NO_A",
                          "RAW_ADC_NO2_W",

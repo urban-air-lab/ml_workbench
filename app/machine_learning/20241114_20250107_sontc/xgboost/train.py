@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     target_query = InfluxQueryBuilder() \
         .set_bucket(InfluxBuckets.LUBW_MINUTE_BUCKET.value) \
-        .set_range("2024-11-15T00:00:00Z", "2025-01-07T23:59:00Z") \
+        .set_range("2024-11-14T00:00:00Z", "2025-01-07T23:59:00Z") \
         .set_measurement(sensors.LUBWSensors.DEBW015.value) \
         .set_fields(["NO2"]) \
         .build()
