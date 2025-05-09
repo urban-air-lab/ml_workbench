@@ -16,9 +16,6 @@ target_data = (CSVDataLoader("../data/minute_data_lubw.csv")
                .set_timespan("2024-11-15 00:00:00", "2025-01-07 23:59:00")
                .get_data(["NO2"]))
 
-# in targets werden zahlen rausgenommen-> ok
-# get rid of duplicates in csv dataloader
-
 align_inputs, align_targets = align_dataframes_by_time(input_data, target_data)
 gases = ["NO", "NO2", "O3"]
 input_features = calculate_w_a_difference(align_inputs, gases)
