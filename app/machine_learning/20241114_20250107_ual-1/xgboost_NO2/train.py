@@ -20,7 +20,7 @@ target_data = (CSVDataLoader("../data/minute_data_lubw.csv")
 # get rid of duplicates in csv dataloader
 
 align_inputs, align_targets = align_dataframes_by_time(input_data, target_data)
-gases = ["NO", "NO2", "03"]
+gases = ["NO", "NO2", "O3"]
 input_features = calculate_w_a_difference(align_inputs, gases)
 
 inputs_train, inputs_test, targets_train, targets_test = train_test_split(input_features,
