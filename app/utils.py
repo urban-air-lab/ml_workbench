@@ -5,6 +5,7 @@ import yaml
 import torch
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error, \
     root_mean_squared_error
+from scipy import stats
 import inspect
 from pathlib import Path
 import os
@@ -35,6 +36,10 @@ class DataProcessor:
         self.targets.resample("D")
         return self
 
+    def remove_outliers(self, outlier_range=3):
+        self.inputs[np.abs(stats.zscore(self.inputs)) < outlier_range].all(axis=1)
+        return self
+
     def align_dataframes_by_time(self):
         self.inputs, self.targets = align_dataframes_by_time(self.inputs, self.targets)
         return self
@@ -49,9 +54,6 @@ class DataProcessor:
 
     def get_target(self, target):
         return self.targets[target]
-
-
-
 
 
 def calculate_w_a_difference(dataframe, gases):
@@ -99,6 +101,16 @@ def map_to_tensor(inputs_train):
     return inputs_train_tensor
 
 
+def save_parameters_from_pytorch(hyperparameters: dict,
+                                 model: PytorchModel,
+                                 directory: Path) -> None:
+    parameters = hyperparameters
+    parameters["training_loss"] = model.training_loss
+    parameters["validation_loss"] = model.validation_loss
+    with open(directory / Path("parameters.json"), 'w') as convert_file:
+        convert_file.write(json.dumps(parameters))
+
+
 def create_result_data(true_values, prediction_values, input_values) -> pd.DataFrame:
     if type(prediction_values) == torch.Tensor:
         prediction_values = prediction_values.detach().numpy().flatten()
@@ -109,16 +121,6 @@ def create_result_data(true_values, prediction_values, input_values) -> pd.DataF
     compare_dataframe.index = true_values.index
     compare_dataframe = pd.concat([compare_dataframe, input_values], axis=1)
     return compare_dataframe
-
-
-def save_parameters_from_pytorch(hyperparameters: dict,
-                                 model: PytorchModel,
-                                 directory: Path) -> None:
-    parameters = hyperparameters
-    parameters["training_loss"] = model.training_loss
-    parameters["validation_loss"] = model.validation_loss
-    with open(directory / Path("parameters.json"), 'w') as convert_file:
-        convert_file.write(json.dumps(parameters))
 
 
 def save_parameters(parameters, directory):
