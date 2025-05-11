@@ -1,5 +1,5 @@
 import xgboost as xgb
-from app.machine_learning.workflows import workflow20241114_20250107_ual3
+from app.machine_learning.ual_3_20241114_20250107.minute_results.workflow import workflow
 
 if __name__ == "__main__":
     inputs = ["RAW_ADC_NO2_W",
@@ -14,4 +14,4 @@ if __name__ == "__main__":
 
     targets = ["PM10"]
     model = xgb.XGBRegressor(objective='reg:squarederror', n_estimators=10)
-    workflow20241114_20250107_ual3(inputs, targets, model)
+    workflow(inputs, targets, model)

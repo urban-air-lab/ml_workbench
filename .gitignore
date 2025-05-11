@@ -1,4 +1,4 @@
 .idea/
 __pycache__/
 /app/database/database_config.yaml
-/app/machine_learning/20241114_20250107_ual-1/data
+/app/machine_learning/ual_1_20241114_20250107/data
