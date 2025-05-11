@@ -27,17 +27,19 @@ class DataProcessor:
         self.targets = targets
 
     def to_hourly(self):
-        self.inputs.resample("H")
-        self.targets.resample("H")
+        self.inputs = self.inputs.resample("h").mean()
+        self.targets = self.targets.resample("h").mean()
         return self
 
     def to_daily(self):
-        self.inputs.resample("D")
-        self.targets.resample("D")
+        self.inputs = self.inputs.resample("d").mean()
+        self.targets = self.targets.resample("d").mean()
         return self
 
     def remove_outliers(self, outlier_range=3):
-        self.inputs[np.abs(stats.zscore(self.inputs)) < outlier_range].all(axis=1)
+        z_scores = np.abs(stats.zscore(self.inputs, nan_policy='omit'))
+        mask = (z_scores < outlier_range).all(axis=1)
+        self.inputs = self.inputs[mask]
         return self
 
     def align_dataframes_by_time(self):
