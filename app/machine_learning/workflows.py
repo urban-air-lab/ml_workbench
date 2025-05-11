@@ -6,20 +6,20 @@ from app.machine_learning.CSV_data_loader import CSVDataLoader
 from app.utils import *
 
 
-def workflow20241114_20250107_ual1(inputs, target, model):
+def workflow20241114_20250107_ual1(inputs, targets, model):
     input_data = (CSVDataLoader("../data/minute_data_ual-1.csv")
                   .set_timespan("2024-11-14 00:00:00", "2025-01-07 23:59:00")
                   .get_data(inputs))
     target_data = (CSVDataLoader("../data/minute_data_lubw.csv")
                    .set_timespan("2024-11-15 00:00:00", "2025-01-07 23:59:00")
-                   .get_data(target))
+                   .get_data(targets))
 
-    align_inputs, align_targets = align_dataframes_by_time(input_data, target_data)
-    gases = ["NO", "NO2", "O3"]
-    input_features = calculate_w_a_difference(align_inputs, gases)
+    processed_data = (DataProcessor(input_data, target_data)
+                      .calculate_w_a_difference()
+                      .align_dataframes_by_time())
 
-    inputs_train, inputs_test, targets_train, targets_test = train_test_split(input_features,
-                                                                              align_targets[target],
+    inputs_train, inputs_test, targets_train, targets_test = train_test_split(processed_data.get_inputs(),
+                                                                              processed_data.get_target(targets),
                                                                               test_size=0.2,
                                                                               shuffle=False)
 
@@ -31,7 +31,6 @@ def workflow20241114_20250107_ual1(inputs, target, model):
     calculate_and_save_evaluation(results, run_directory)
     save_predictions(results, run_directory)
     save_plot(results, run_directory)
-
 
 
 def workflow20241114_20250107_ual3(inputs, targets, model):
@@ -53,12 +52,12 @@ def workflow20241114_20250107_ual3(inputs, targets, model):
         .build()
     target_data = connection.query_dataframe(target_query)
 
-    align_inputs, align_targets = align_dataframes_by_time(input_data, target_data)
-    gases = ["NO2", "NO", "O3"]
-    input_features = calculate_w_a_difference(align_inputs, gases)
+    processed_data = (DataProcessor(input_data, target_data)
+                      .calculate_w_a_difference()
+                      .align_dataframes_by_time())
 
-    inputs_train, inputs_test, targets_train, targets_test = train_test_split(input_features,
-                                                                              align_targets[targets],
+    inputs_train, inputs_test, targets_train, targets_test = train_test_split(processed_data.get_inputs(),
+                                                                              processed_data.get_target(targets),
                                                                               test_size=0.2,
                                                                               shuffle=False)
 

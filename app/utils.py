@@ -15,6 +15,45 @@ from sklearn.model_selection import train_test_split
 from app.machine_learning.models_pytorch import PytorchModel
 
 
+class DataProcessor:
+    def __init__(self, inputs, targets):
+        if not isinstance(inputs.index, pd.DatetimeIndex):
+            raise ValueError("The inputs index must be a DatetimeIndex.")
+        if not isinstance(targets.index, pd.DatetimeIndex):
+            raise ValueError("The targets index must be a DatetimeIndex.")
+
+        self.inputs = inputs
+        self.targets = targets
+
+    def to_hourly(self):
+        self.inputs.resample("H")
+        self.targets.resample("H")
+        return self
+
+    def to_daily(self):
+        self.inputs.resample("D")
+        self.targets.resample("D")
+        return self
+
+    def align_dataframes_by_time(self):
+        self.inputs, self.targets = align_dataframes_by_time(self.inputs, self.targets)
+        return self
+
+    def calculate_w_a_difference(self):
+        gases = ["NO", "NO2", "O3"]
+        self.inputs = calculate_w_a_difference(self.inputs, gases)
+        return self
+
+    def get_inputs(self):
+        return self.inputs
+
+    def get_target(self, target):
+        return self.targets[target]
+
+
+
+
+
 def calculate_w_a_difference(dataframe, gases):
     for gas in gases:
         w_column = f"RAW_ADC_{gas}_W"
