@@ -137,7 +137,7 @@ def get_config(file: str) -> dict:
 
 
 def create_run_directory() -> Path:
-    os_independent_path = _get_caller_directory(2)
+    os_independent_path = _get_caller_directory(3)
     results_path = os_independent_path / Path("results")
 
     if not os.path.exists(results_path):
