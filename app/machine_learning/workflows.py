@@ -6,16 +6,16 @@ from app.machine_learning.CSV_data_loader import CSVDataLoader
 from app.utils import *
 
 
-def workflow20241114_20250107_ual1(inputs, targets, model):
-    input_data = (CSVDataLoader("../data/minute_data_ual-1.csv")
+def workflow20241114_20250107_ual1_2(inputs, targets, model):
+    input_data = (CSVDataLoader("../../data/minute_data_ual-1.csv")
                   .set_timespan("2024-11-14 00:00:00", "2025-01-07 23:59:00")
                   .get_data(inputs))
-    target_data = (CSVDataLoader("../data/minute_data_lubw.csv")
+    target_data = (CSVDataLoader("../../data/minute_data_lubw.csv")
                    .set_timespan("2024-11-15 00:00:00", "2025-01-07 23:59:00")
                    .get_data(targets))
 
     processed_data = (DataProcessor(input_data, target_data)
-                      .to_daily()
+                      .to_hourly()
                       .remove_outliers()
                       .calculate_w_a_difference()
                       .align_dataframes_by_time())
@@ -24,6 +24,9 @@ def workflow20241114_20250107_ual1(inputs, targets, model):
                                                                               processed_data.get_target(targets),
                                                                               test_size=0.2,
                                                                               shuffle=False)
+    nan_indices = targets_train[targets_train.isnull().any(axis=1)].index
+    targets_train = targets_train.drop(index=nan_indices)
+    inputs_train = inputs_train.drop(index=nan_indices)
 
     model.fit(inputs_train, targets_train)
     prediction = model.predict(inputs_test)
