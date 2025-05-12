@@ -20,6 +20,7 @@ tabpfn = "*"
 torch = {version = "2.6.0", index = "downloadpytorch", extras = ["cpu"]}
 flake8 = "*"
 scipy = "*"
+seaborn = "*"
 
 [dev-packages]
 
