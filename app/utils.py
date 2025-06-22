@@ -42,6 +42,10 @@ class DataProcessor:
         self.inputs = self.inputs[mask]
         return self
 
+    def remove_nan(self):
+        self.inputs.dropna(înplace=True, ignore_index=True)
+        self.targets.dropna(inplace=False, ignore_index=True)
+
     def align_dataframes_by_time(self):
         self.inputs, self.targets = align_dataframes_by_time(self.inputs, self.targets)
         return self
@@ -111,6 +115,23 @@ def save_parameters_from_pytorch(hyperparameters: dict,
     parameters["validation_loss"] = model.validation_loss
     with open(directory / Path("parameters.json"), 'w') as convert_file:
         convert_file.write(json.dumps(parameters))
+
+
+class ResultBuilder:
+    def __init__(self, targets_test, prediction, inputs_test):
+        self.directory = create_run_directory()
+        self.results = create_result_data(targets_test, prediction, inputs_test)
+
+    def calculate_and_save_evaluation(self):
+        calculate_and_save_evaluation(self.results, self.directory)
+
+    def save_predictions(self):
+        save_predictions(self.results, self.directory)
+
+    def save_plot(self):
+        save_plot(self.results, self.directory)
+
+
 
 
 def create_result_data(true_values, prediction_values, input_values) -> pd.DataFrame:
