@@ -43,8 +43,9 @@ class DataProcessor:
         return self
 
     def remove_nan(self):
-        self.inputs.dropna(înplace=True, ignore_index=True)
-        self.targets.dropna(inplace=False, ignore_index=True)
+        self.inputs.dropna(inplace=True)
+        self.targets.dropna(inplace=False)
+        return self
 
     def align_dataframes_by_time(self):
         self.inputs, self.targets = align_dataframes_by_time(self.inputs, self.targets)
