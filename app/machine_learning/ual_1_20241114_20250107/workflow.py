@@ -12,6 +12,7 @@ def workflow(inputs, targets, model):
 
     processed_data = (DataProcessor(input_data, target_data)
                       .to_hourly()
+                      .remove_nan()
                       .remove_outliers()
                       .calculate_w_a_difference()
                       .align_dataframes_by_time())
@@ -20,15 +21,10 @@ def workflow(inputs, targets, model):
                                                                               processed_data.get_target(targets),
                                                                               test_size=0.2,
                                                                               shuffle=False)
-    nan_indices = targets_train[targets_train.isnull().any(axis=1)].index
-    targets_train = targets_train.drop(index=nan_indices)
-    inputs_train = inputs_train.drop(index=nan_indices)
-
     model.fit(inputs_train, targets_train)
     prediction = model.predict(inputs_test)
 
-    run_directory = create_run_directory()
-    results = create_result_data(targets_test, prediction, inputs_test)
-    calculate_and_save_evaluation(results, run_directory)
-    save_predictions(results, run_directory)
-    save_plot(results, run_directory)
+    (ResultBuilder(targets_test, prediction, inputs_test)
+     .calculate_and_save_evaluation()
+     .save_predictions()
+     .save_plot())
