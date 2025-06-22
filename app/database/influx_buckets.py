@@ -5,8 +5,8 @@ class InfluxBuckets(Enum):
     """
     Contains strings of all used InfluxDB buckets
     """
-    AQSN_MINUTE_CALIBRATION_BUCKET = "AQSNMinuteCalibrationBucket"
-    AQSN_MINUTE_MEASUREMENT_BUCKET = "AQSNMinuteMeasurementBucket"
-    LUBW_HOUR_BUCKET = "LUBWHourBucket"
-    LUBW_MINUTE_BUCKET = "LUBWMinuteBucket"
-    TEST_BUCKET = "TestBucket"
+    UAL_MINUTE_CALIBRATION_BUCKET = "ual-minute-calibration"
+    UAL_MINUTE_MEASUREMENT_BUCKET = "ual-minute-measurement"
+    LUBW_HOUR_BUCKET = "lubw-hour"
+    LUBW_MINUTE_BUCKET = "lubw-minute"
+    TEST_BUCKET = "test-data"
