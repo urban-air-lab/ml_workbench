@@ -28,6 +28,6 @@ class InfluxDBConnector:
 
     def query_dataframe(self, query: str) -> pd.DataFrame:
         query_result = self.query_api.query_data_frame(query)
-        query_result.drop(["result", "table", "_start", "_stop", "_measurement"], inplace=True, axis=1)
+        query_result.drop(["result", "host", "topic", "table", "_start", "_stop", "_measurement"], inplace=True, axis=1)
         query_result.set_index("_time", inplace=True, drop=True)
         return query_result
