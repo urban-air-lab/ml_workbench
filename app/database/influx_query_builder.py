@@ -1,5 +1,7 @@
 import re
 
+from app.database.influx_buckets import InfluxBuckets
+
 
 class InfluxQueryBuilder:
     """
@@ -7,7 +9,7 @@ class InfluxQueryBuilder:
 
     from(bucket: "{bucket}")
     |> range(start: {start_time}, stop: {stop_time})
-    |> filter(fn: (r) => r._measurement == "{measurement}")
+    |> filter(fn: (r) => r.topic == "{topic}")
     |> filter(fn: (r) => r._field == "{attributes[0]}" or r._field == "{attributes[1]} or (...)")
     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
     """
@@ -15,7 +17,7 @@ class InfluxQueryBuilder:
     def __init__(self):
         self._bucket = None
         self._range = None
-        self._measurement = None
+        self._topic = None
         self._fields = None
         self._pivot = '''|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'''
         self.query = None
@@ -32,8 +34,8 @@ class InfluxQueryBuilder:
         self._range = f'''|> range(start: {start_date}, stop: {stop_date})'''
         return self
 
-    def set_measurement(self, measurement: str):
-        self._measurement = f'''|> filter(fn: (r) => r._measurement == "{measurement}")'''
+    def set_topic(self, sensor: str):
+        self._topic = f'''|> filter(fn: (r) => r.topic == "{self._build_topic(sensor)}")'''
         return self
 
     def set_fields(self, fields: list):
@@ -51,15 +53,27 @@ class InfluxQueryBuilder:
             raise ValueError("bucket must be set!")
         if self._range is None:
             raise ValueError("time range must be set!")
-        if self._measurement is None:
-            raise ValueError("measurement must be set!")
+        if self._topic is None:
+            raise ValueError("topic must be set!")
 
-        self.query = self._bucket + self._range + self._measurement
+        self.query = self._bucket + self._range + self._topic
         if self._fields is not None:
             self.query = self.query + self._fields
         self.query = self.query + self._pivot
 
         return self.query
+
+    def _build_topic(self, sensor: str) -> str:
+        if InfluxBuckets.LUBW_HOUR_BUCKET.value in self._bucket:
+            return "sensors/lubw-hour/" + sensor
+        elif InfluxBuckets.LUBW_MINUTE_BUCKET.value in self._bucket:
+            return "sensors/lubw-minute/" + sensor
+        elif InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET.value in self._bucket:
+            return "sensors/calibration/" + sensor
+        elif InfluxBuckets.UAL_MINUTE_MEASUREMENT_BUCKET.value in self._bucket:
+            return "sensors/measurement/" + sensor
+        else:
+            raise ValueError("No correct sensor name found, please check")
 
     def _is_valid_iso8601_utc(self, date: str) -> bool:
         pattern = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"
