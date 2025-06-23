@@ -17,7 +17,7 @@ def workflow(inputs, targets, model):
     input_data = connection.query_dataframe(inputs_query)
 
     target_query = InfluxQueryBuilder() \
-        .set_bucket(InfluxBuckets.LUBW_MINUTE_BUCKET.value) \
+        .set_bucket(InfluxBuckets.LUBW_HOUR_BUCKET.value) \
         .set_range("2024-11-14T00:00:00Z", "2025-01-07T23:59:00Z") \
         .set_topic(sensors.LUBWSensors.DEBW015.value) \
         .set_fields(targets) \
@@ -38,8 +38,7 @@ def workflow(inputs, targets, model):
     model.fit(inputs_train, targets_train)
     prediction = model.predict(inputs_test)
 
-    run_directory = create_run_directory()
-    results = create_result_data(targets_test, prediction, inputs_test)
-    calculate_and_save_evaluation(results, run_directory)
-    save_predictions(results, run_directory)
-    save_plot(results, run_directory)
+    (ResultBuilder(targets_test, prediction, inputs_test)
+     .calculate_and_save_evaluation()
+     .save_predictions()
+     .save_plot())

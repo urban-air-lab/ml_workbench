@@ -1,5 +1,5 @@
 import xgboost as xgb
-from app.machine_learning.ual_3_20241114_20250107.hour_results.workflow import workflow
+from app.machine_learning.ual_3_20241114_20250107.workflow import workflow
 
 if __name__ == "__main__":
     inputs = ["RAW_ADC_NO2_W",
