@@ -9,9 +9,9 @@ def workflow(inputs, targets, model):
     connection = InfluxDBConnector()
 
     inputs_query = InfluxQueryBuilder() \
-        .set_bucket(InfluxBuckets.AQSN_MINUTE_CALIBRATION_BUCKET.value) \
+        .set_bucket(InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET.value) \
         .set_range("2024-11-15T00:00:00Z", "2025-01-07T23:59:00Z") \
-        .set_measurement(sensors.AQSNSensors.SONT_C.value) \
+        .set_topic(sensors.AQSNSensors.UAL_3.value) \
         .set_fields(inputs) \
         .build()
     input_data = connection.query_dataframe(inputs_query)
@@ -19,7 +19,7 @@ def workflow(inputs, targets, model):
     target_query = InfluxQueryBuilder() \
         .set_bucket(InfluxBuckets.LUBW_MINUTE_BUCKET.value) \
         .set_range("2024-11-14T00:00:00Z", "2025-01-07T23:59:00Z") \
-        .set_measurement(sensors.LUBWSensors.DEBW015.value) \
+        .set_topic(sensors.LUBWSensors.DEBW015.value) \
         .set_fields(targets) \
         .build()
     target_data = connection.query_dataframe(target_query)
@@ -27,6 +27,7 @@ def workflow(inputs, targets, model):
     processed_data = (DataProcessor(input_data, target_data)
                       .to_hourly()
                       .remove_outliers()
+                      .remove_nan()
                       .calculate_w_a_difference()
                       .align_dataframes_by_time())
 
@@ -34,11 +35,6 @@ def workflow(inputs, targets, model):
                                                                               processed_data.get_target(targets),
                                                                               test_size=0.2,
                                                                               shuffle=False)
-
-    nan_indices = targets_train[targets_train.isnull().any(axis=1)].index
-    targets_train = targets_train.drop(index=nan_indices)
-    inputs_train = inputs_train.drop(index=nan_indices)
-
     model.fit(inputs_train, targets_train)
     prediction = model.predict(inputs_test)
 

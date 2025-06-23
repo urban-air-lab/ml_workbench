@@ -43,8 +43,8 @@ class DataProcessor:
         return self
 
     def remove_nan(self):
-        self.inputs.dropna(inplace=True)
-        self.targets.dropna(inplace=False)
+        self.inputs = self.inputs.dropna()
+        self.targets = self.targets.dropna()
         return self
 
     def align_dataframes_by_time(self):
@@ -125,12 +125,15 @@ class ResultBuilder:
 
     def calculate_and_save_evaluation(self):
         calculate_and_save_evaluation(self.results, self.directory)
+        return self
 
     def save_predictions(self):
         save_predictions(self.results, self.directory)
+        return self
 
     def save_plot(self):
         save_plot(self.results, self.directory)
+        return self
 
 
 
