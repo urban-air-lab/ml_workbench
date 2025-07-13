@@ -27,7 +27,7 @@ def test_get_complete_query_as_dataframe(database_connection):
     query = InfluxQueryBuilder() \
         .set_bucket(InfluxBuckets.TEST_BUCKET.value) \
         .set_range("2024-10-22T00:00:00Z", "2024-10-22T23:00:00Z") \
-        .set_measurement("sont_c") \
+        .set_topic("sont_c") \
         .set_fields(["CO", "NO"]) \
         .build()
 

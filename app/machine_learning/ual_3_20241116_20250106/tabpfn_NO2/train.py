@@ -13,9 +13,9 @@ if __name__ == "__main__":
     connection = InfluxDBConnector()
 
     inputs_query = InfluxQueryBuilder() \
-        .set_bucket(InfluxBuckets.AQSN_MINUTE_CALIBRATION_BUCKET.value) \
+        .set_bucket(InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET.value) \
         .set_range("2024-11-16T00:00:00Z", "2024-11-24T12:00:00Z") \
-        .set_measurement(sensors.AQSNSensors.SONT_C.value) \
+        .set_topic(sensors.AQSNSensors.UAL_3.value) \
         .set_fields(["RAW_ADC_NO2_W",
                      "RAW_ADC_NO2_A",
                      "RAW_ADC_NO_W",
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     target_query = InfluxQueryBuilder() \
         .set_bucket(InfluxBuckets.LUBW_MINUTE_BUCKET.value) \
         .set_range("2024-11-16T00:00:00Z", "2024-11-24T12:00:00Z") \
-        .set_measurement(sensors.LUBWSensors.DEBW015.value) \
+        .set_topic(sensors.LUBWSensors.DEBW015.value) \
         .set_fields(["NO2"]) \
         .build()
     target_data = connection.query_dataframe(target_query)

@@ -57,7 +57,7 @@ def test_builder_bucket_range_measurement():
     query = InfluxQueryBuilder() \
         .set_bucket(InfluxBuckets.TEST_BUCKET.value) \
         .set_range("2024-10-22T00:00:00Z", "2024-10-22T23:00:00Z") \
-        .set_measurement("sont_c") \
+        .set_topic("sont_c") \
         .build()
     assert query == '''from(bucket: "TestBucket")|> range(start: 2024-10-22T00:00:00Z, stop: 2024-10-22T23:00:00Z)|> filter(fn: (r) => r._measurement == "sont_c")|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'''
 
@@ -66,7 +66,7 @@ def test_builder_bucket_range_measurement_fields():
     query = InfluxQueryBuilder() \
         .set_bucket(InfluxBuckets.TEST_BUCKET.value) \
         .set_range("2024-10-22T00:00:00Z", "2024-10-22T23:00:00Z") \
-        .set_measurement("sont_c") \
+        .set_topic("sont_c") \
         .set_fields(["CO", "NO"]) \
         .build()
     assert query == '''from(bucket: "TestBucket")|> range(start: 2024-10-22T00:00:00Z, stop: 2024-10-22T23:00:00Z)|> filter(fn: (r) => r._measurement == "sont_c")|> filter(fn: (r) => r._field == "CO" or r._field == "NO")|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'''
