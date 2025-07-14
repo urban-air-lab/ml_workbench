@@ -71,3 +71,25 @@ def align_dataframes_by_time(df1, df2):
     df1_aligned = df1.loc[common_times]
     df2_aligned = df2.loc[common_times]
     return df1_aligned, df2_aligned
+
+
+def convert_to_pytorch_tensors(inputs_train, inputs_test, targets_train, targets_test):
+    inputs_train_tensor = map_to_tensor(inputs_train)
+    inputs_test_tensor = map_to_tensor(inputs_test)
+    targets_train_tensor = map_to_tensor(targets_train)
+    targets_test_tensor = map_to_tensor(targets_test)
+
+    targets_train_tensor = add_dimension(targets_train_tensor)
+    targets_test_tensor = add_dimension(targets_test_tensor)
+
+    return inputs_train_tensor, inputs_test_tensor, targets_train_tensor, targets_test_tensor
+
+
+def add_dimension(targets_train_tensor):
+    targets_train_tensor = targets_train_tensor.unsqueeze(1)
+    return targets_train_tensor
+
+
+def map_to_tensor(inputs_train):
+    inputs_train_tensor = torch.tensor(inputs_train.values, dtype=torch.float32)
+    return inputs_train_tensor
