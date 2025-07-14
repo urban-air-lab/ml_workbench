@@ -1,5 +1,3 @@
-from typing import Dict, Any
-
 import numpy as np
 import pandas as pd
 import logging
@@ -10,12 +8,6 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, m
 from scipy import stats
 import inspect
 from pathlib import Path
-import os
-import json
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-
-from app.machine_learning.models_pytorch import PytorchModel
 
 
 class DataProcessor:
