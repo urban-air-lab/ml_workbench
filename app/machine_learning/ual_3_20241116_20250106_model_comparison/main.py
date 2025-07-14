@@ -11,9 +11,9 @@ from app.database import sensors
 from app.database.Influx_db_connector import InfluxDBConnector
 from app.database.influx_buckets import InfluxBuckets
 from app.database.influx_query_builder import InfluxQueryBuilder
-from app.utils import *
 import mlflow
 from dotenv import load_dotenv
+from app.model_evaluation import *
 
 load_dotenv()
 
