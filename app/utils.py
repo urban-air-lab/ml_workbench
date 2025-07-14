@@ -110,34 +110,6 @@ def map_to_tensor(inputs_train):
     return inputs_train_tensor
 
 
-def save_parameters_from_pytorch(hyperparameters: dict,
-                                 model: PytorchModel,
-                                 directory: Path) -> None:
-    parameters = hyperparameters
-    parameters["training_loss"] = model.training_loss
-    parameters["validation_loss"] = model.validation_loss
-    with open(directory / Path("parameters.json"), 'w') as convert_file:
-        convert_file.write(json.dumps(parameters))
-
-
-class ResultBuilder:
-    def __init__(self, targets_test, prediction, inputs_test):
-        self.directory = create_run_directory()
-        self.results = create_result_data(targets_test, prediction, inputs_test)
-
-    def calculate_and_save_evaluation(self):
-        calculate_and_save_evaluation(self.results, self.directory)
-        return self
-
-    def save_predictions(self):
-        save_predictions(self.results, self.directory)
-        return self
-
-    def save_plot(self):
-        save_plot(self.results, self.directory)
-        return self
-
-
 def create_result_data(true_values, prediction_values, input_values) -> pd.DataFrame:
     if type(prediction_values) == torch.Tensor:
         prediction_values = prediction_values.detach().numpy().flatten()
@@ -148,26 +120,6 @@ def create_result_data(true_values, prediction_values, input_values) -> pd.DataF
     compare_dataframe.index = true_values.index
     compare_dataframe = pd.concat([compare_dataframe, input_values], axis=1)
     return compare_dataframe
-
-
-def save_parameters(parameters, directory):
-    with open(directory / Path("parameters.json"), 'w') as convert_file:
-        convert_file.write(json.dumps(parameters))
-
-
-def calculate_and_save_evaluation(dataframe: pd.DataFrame, directory: Path) -> None:
-    if not {"True", "Predictions"}.issubset(dataframe.columns):
-        raise ValueError("DataFrame must contain 'True' and 'Predictions' columns.")
-
-    metrics = {
-        "MAE": round(mean_absolute_error(dataframe["True"], dataframe["Predictions"]), 2),
-        "MSE": round(mean_squared_error(dataframe["True"], dataframe["Predictions"]), 2),
-        "RMSE": round(root_mean_squared_error(dataframe["True"], dataframe["Predictions"]), 2),
-        "MAPE": round((mean_absolute_percentage_error(dataframe["True"], dataframe["Predictions"])) * 100, 2),
-        "R-squared": round(r2_score(dataframe["True"], dataframe["Predictions"]), 2)
-    }
-    with open(directory / Path("metrics.json"), 'w') as convert_file:
-        convert_file.write(json.dumps(metrics))
 
 
 def calculate_evaluation(dataframe: pd.DataFrame) -> dict[str, float]:
@@ -183,27 +135,6 @@ def calculate_evaluation(dataframe: pd.DataFrame) -> dict[str, float]:
     }
 
 
-def save_predictions(dataframe: pd.DataFrame, directory: Path) -> None:
-    dataframe.to_csv(directory / Path("predictions.csv"))
-
-
-def save_plot(results: pd.DataFrame, directory: Path) -> None:
-    plt.figure(figsize=(10, 5))
-
-    plt.plot(results.index, results["True"], label="True", linestyle="-")
-    plt.plot(results.index, results["Predictions"], label="Predictions", linestyle="--")
-
-    plt.xlabel("Date")
-    plt.ylabel("Values")
-    plt.title("True vs Predictions")
-    plt.legend()
-    plt.grid(True)
-    plt.xticks(rotation=45)
-
-    plt.savefig(directory / "predictions.png", bbox_inches="tight")
-    plt.close()
-
-
 def get_config(file: str) -> dict:
     os_independent_path = _get_caller_directory(2) / Path(file)
     try:
@@ -215,19 +146,6 @@ def get_config(file: str) -> dict:
         logging.error(f"IOError: An I/O error occurred")
     except Exception as e:
         logging.error(f"An unexpected error occurred: {e}")
-
-
-def create_run_directory() -> Path:
-    os_independent_path = _get_caller_directory(3)
-    results_path = os_independent_path / Path("results")
-
-    if not os.path.exists(results_path):
-        os.makedirs(results_path)
-
-    number_of_files = len(os.listdir(results_path))
-    run_path = os_independent_path / Path("results" / Path(f"run_{number_of_files + 1}"))
-    os.makedirs(run_path)
-    return run_path
 
 
 def _get_caller_directory(stack_position: int) -> Path:
