@@ -12,8 +12,9 @@ from app.database.Influx_db_connector import InfluxDBConnector
 from app.database.influx_buckets import InfluxBuckets
 from app.database.influx_query_builder import InfluxQueryBuilder
 import mlflow
+import pandas as pd
 from dotenv import load_dotenv
-from app.model_evaluation import *
+from app.model_evaluation import create_result_data, calculate_evaluation
 
 load_dotenv()
 
