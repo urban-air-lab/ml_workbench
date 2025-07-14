@@ -1,8 +1,12 @@
+import os
+from matplotlib import pyplot as plt
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 import xgboost as xgb
 import seaborn as sns
+from app.data_processor import DataProcessor
 from app.database import sensors
 from app.database.Influx_db_connector import InfluxDBConnector
 from app.database.influx_buckets import InfluxBuckets
