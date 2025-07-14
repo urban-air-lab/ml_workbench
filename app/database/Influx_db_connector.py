@@ -1,6 +1,6 @@
 from influxdb_client import InfluxDBClient
 import pandas as pd
-from app.utils import get_config
+from app.get_config import get_config
 
 
 class InfluxDBConnector:
