@@ -12,6 +12,7 @@ from app.database.Influx_db_connector import InfluxDBConnector
 from app.database.influx_buckets import InfluxBuckets
 from app.database.influx_query_builder import InfluxQueryBuilder
 import mlflow
+from mlflow.models.signature import infer_signature
 import pandas as pd
 from dotenv import load_dotenv
 from app.get_config import get_config
@@ -68,6 +69,7 @@ def main():
     os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
     mlflow.set_tracking_uri("http://91.99.65.22:5000")
     mlflow.set_experiment("Model Comparison 3")
+    model_signature = infer_signature(inputs_train, targets_train)
 
     with mlflow.start_run(run_name="All Models"):
         for name, regressor in regressors.items():
@@ -81,9 +83,13 @@ def main():
 
                 mlflow.log_metrics(metrics)
                 if name == "XGBRegressor":
-                    mlflow.xgboost.log_model(regressor)
+                    mlflow.xgboost.log_model(xgb_model=regressor,
+                                             signature=model_signature,
+                                             artifact_path="model")
                 else:
-                    mlflow.sklearn.log_model(regressor)
+                    mlflow.sklearn.log_model(sk_model=regressor,
+                                             signature=model_signature,
+                                             name="model")
 
         mlflow.log_figure(plot_data(data_processor), artifact_file="data_overview.png")
         mlflow.log_figure(plot_metrics(all_metrics), artifact_file="model_overview.png")
