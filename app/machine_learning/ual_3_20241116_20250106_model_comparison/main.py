@@ -14,35 +14,34 @@ from app.database.influx_query_builder import InfluxQueryBuilder
 import mlflow
 import pandas as pd
 from dotenv import load_dotenv
+from app.get_config import get_config
 from app.model_evaluation import create_result_data, calculate_evaluation
 
 load_dotenv()
+
+#input signatur, target signauture, plot infos,
 
 
 def main():
     connection = InfluxDBConnector()
 
+    run_config = get_config("./run_config.yaml")
+    run_config["ual_bucket"] = InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET.value
+    run_config["lubw_bucket"] = InfluxBuckets.LUBW_HOUR_BUCKET.value
+
     inputs_query = InfluxQueryBuilder() \
-        .set_bucket(InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET.value) \
-        .set_range("2024-11-16T00:00:00Z", "2025-01-06T23:00:00Z") \
+        .set_bucket(run_config["ual_bucket"]) \
+        .set_range(run_config["start_time"], run_config["stop_time"]) \
         .set_topic(sensors.AQSNSensors.UAL_3.value) \
-        .set_fields(["RAW_ADC_NO2_W",
-                     "RAW_ADC_NO2_A",
-                     "RAW_ADC_NO_W",
-                     "RAW_ADC_NO_A",
-                     "RAW_ADC_O3_W",
-                     "RAW_ADC_O3_A",
-                     "sht_temp",
-                     "sht_humid"
-                     ]) \
+        .set_fields(run_config["inputs"]) \
         .build()
     input_data = connection.query_dataframe(inputs_query)
 
     target_query = InfluxQueryBuilder() \
-        .set_bucket(InfluxBuckets.LUBW_HOUR_BUCKET.value) \
-        .set_range("2024-11-16T00:00:00Z", "2025-01-06T23:00:00Z") \
+        .set_bucket(run_config["lubw_bucket"]) \
+        .set_range(run_config["start_time"], run_config["stop_time"]) \
         .set_topic(sensors.LUBWSensors.DEBW015.value) \
-        .set_fields(["NO2"]) \
+        .set_fields(run_config["targets"]) \
         .build()
     target_data = connection.query_dataframe(target_query)
 
@@ -53,7 +52,7 @@ def main():
                       .align_dataframes_by_time())
 
     inputs_train, inputs_test, targets_train, targets_test = train_test_split(data_processor.get_inputs(),
-                                                                              data_processor.get_target("NO2"),
+                                                                              data_processor.get_target(run_config["targets"]),
                                                                               test_size=0.2,
                                                                               shuffle=False)
 
@@ -68,7 +67,7 @@ def main():
     os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv("MLFLOW_USERNAME")
     os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
     mlflow.set_tracking_uri("http://91.99.65.22:5000")
-    mlflow.set_experiment("Model Comparison 2")
+    mlflow.set_experiment("Model Comparison 3")
 
     with mlflow.start_run(run_name="All Models"):
         for name, regressor in regressors.items():
@@ -88,6 +87,7 @@ def main():
 
         mlflow.log_figure(plot_data(data_processor), artifact_file="data_overview.png")
         mlflow.log_figure(plot_metrics(all_metrics), artifact_file="model_overview.png")
+        mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 
 def plot_data(data_processor):
