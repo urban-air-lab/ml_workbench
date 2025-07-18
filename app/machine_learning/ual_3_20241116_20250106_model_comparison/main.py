@@ -104,6 +104,7 @@ def plot_data(data_processor):
         axes[i].grid(True)
     axes[5].plot(data_processor.get_target("NO2"))
     axes[5].set_title('NO2')
+    axes[5].set_ylabel('time')
     axes[5].grid(True)
     plt.tight_layout()
     return fig
