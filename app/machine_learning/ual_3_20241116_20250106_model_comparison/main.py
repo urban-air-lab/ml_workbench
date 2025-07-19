@@ -20,8 +20,6 @@ from app.model_evaluation import create_result_data, calculate_evaluation
 
 load_dotenv()
 
-#input signatur, target signauture, plot infos,
-
 
 def main():
     connection = InfluxDBConnector()
@@ -85,7 +83,7 @@ def main():
                 if name == "XGBRegressor":
                     mlflow.xgboost.log_model(xgb_model=regressor,
                                              signature=model_signature,
-                                             artifact_path="model")
+                                             name="model")
                 else:
                     mlflow.sklearn.log_model(sk_model=regressor,
                                              signature=model_signature,
@@ -102,9 +100,18 @@ def plot_data(data_processor):
         axes[i].plot(data_processor.get_inputs()[column])
         axes[i].set_title(f'{column}')
         axes[i].grid(True)
+        axes[i].set_xlabel('time')
+        if "sht_humid" in column:
+            axes[i].set_ylabel("%")
+        if "sht_temp" in column:
+            axes[i].set_ylabel("°C")
+        if "W_A" in column:
+            axes[i].set_ylabel("mV")
+
     axes[5].plot(data_processor.get_target("NO2"))
     axes[5].set_title('NO2')
-    axes[5].set_ylabel('time')
+    axes[5].set_xlabel('time')
+    axes[5].set_ylabel('ppm')
     axes[5].grid(True)
     plt.tight_layout()
     return fig
@@ -115,7 +122,7 @@ def plot_metrics(metrics: dict):
     df_melted = df.melt(id_vars='Model', var_name='Metric', value_name='Value')
 
     sns.set(style="whitegrid")
-    palette = sns.color_palette("Set2")
+    palette = sns.color_palette("Set2", n_colors=5)
 
     figure = plt.figure(figsize=(14, 7))
     sns.barplot(data=df_melted, x="Model", y="Value", hue="Metric", palette=palette)
