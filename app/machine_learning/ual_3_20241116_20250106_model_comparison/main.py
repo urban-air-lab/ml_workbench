@@ -62,6 +62,8 @@ def main():
                   "XGBRegressor": xgb.XGBRegressor(objective='reg:squarederror', n_estimators=10)}
 
     all_metrics = dict()
+    all_predictions = dict()
+    all_predictions["ground truth"] = targets_test.values.flatten()
 
     os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv("MLFLOW_USERNAME")
     os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
@@ -74,6 +76,10 @@ def main():
             with mlflow.start_run(run_name=name, nested=True):
                 regressor.fit(inputs_train, targets_train)
                 prediction = regressor.predict(inputs_test)
+                if prediction.ndim == 2:
+                    all_predictions[name] = prediction.flatten()
+                else:
+                    all_predictions[name] = prediction
 
                 results = create_result_data(targets_test, prediction, inputs_test)
                 metrics = calculate_evaluation(results)
@@ -91,6 +97,7 @@ def main():
 
         mlflow.log_figure(plot_data(data_processor), artifact_file="data_overview.png")
         mlflow.log_figure(plot_metrics(all_metrics), artifact_file="model_overview.png")
+        mlflow.log_figure(plot_predictions(all_predictions), artifact_file="predictions.png")
         mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 
@@ -132,6 +139,18 @@ def plot_metrics(metrics: dict):
     plt.ylabel('Metric Value')
     plt.xlabel('Machine Learning Models')
     plt.legend(title='Metric')
+    plt.tight_layout()
+    return figure
+
+
+def plot_predictions(predictions: dict):
+    figure = plt.figure(figsize=(14, 7))
+    for name, prediction in predictions.items():
+        plt.plot(prediction)
+
+    plt.title("Model Performance Over Iterations")
+    plt.legend(title="predictions")
+    sns.set(style="whitegrid", context="talk")
     plt.tight_layout()
     return figure
 
