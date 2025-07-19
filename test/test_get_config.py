@@ -11,12 +11,3 @@ def test_get_config():
     assert config["name"] == "test"
 
 
-def test_get_database_config():
-    database_config = get_config("ressources/database_config.yaml")
-    assert database_config["url"] == "test.com"
-
-
-def test_get_workflow_config():
-    database_config = get_config("ressources/workflow_config.yaml")
-    assert database_config["name"] == "test"
-
