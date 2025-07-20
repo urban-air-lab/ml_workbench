@@ -63,7 +63,7 @@ def main():
 
     all_metrics = dict()
     all_predictions = dict()
-    all_predictions["ground truth"] = targets_test.values.flatten()
+    all_predictions["ground truth"] = targets_test.values.flatten().tolist()
 
     os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv("MLFLOW_USERNAME")
     os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
@@ -77,9 +77,9 @@ def main():
                 regressor.fit(inputs_train, targets_train)
                 prediction = regressor.predict(inputs_test)
                 if prediction.ndim == 2:
-                    all_predictions[name] = prediction.flatten()
+                    all_predictions[name] = prediction.flatten().tolist()
                 else:
-                    all_predictions[name] = prediction
+                    all_predictions[name] = prediction.tolist()
 
                 results = create_result_data(targets_test, prediction, inputs_test)
                 metrics = calculate_evaluation(results)
@@ -144,11 +144,14 @@ def plot_metrics(metrics: dict):
 
 
 def plot_predictions(predictions: dict):
-    figure = plt.figure(figsize=(14, 7))
-    for name, prediction in predictions.items():
-        plt.plot(prediction)
+    figure, axes = plt.subplots(nrows=6, ncols=1, figsize=(10, 12), sharex=True)
+    for i, entry in enumerate(predictions.items()):
+        axes[i].plot(entry[1])
+        axes[i].set_title(entry[0])
+        axes[i].set_xlabel('time')
+        axes[i].set_ylabel('ppm')
 
-    plt.title("Model Performance Over Iterations")
+    plt.title("Model Performance")
     plt.legend(title="predictions")
     sns.set(style="whitegrid", context="talk")
     plt.tight_layout()
