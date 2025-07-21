@@ -22,16 +22,18 @@ load_dotenv()
 
 
 def main():
-    connection = InfluxDBConnector()
-
     run_config = get_config("./run_config.yaml")
     run_config["ual_bucket"] = InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET.value
+    run_config["ual_sensor"] = sensors.AQSNSensors.UAL_3.value
     run_config["lubw_bucket"] = InfluxBuckets.LUBW_HOUR_BUCKET.value
+    run_config["lubw_sensor"] = sensors.LUBWSensors.DEBW015.value
+
+    connection = InfluxDBConnector()
 
     inputs_query = InfluxQueryBuilder() \
         .set_bucket(run_config["ual_bucket"]) \
         .set_range(run_config["start_time"], run_config["stop_time"]) \
-        .set_topic(sensors.AQSNSensors.UAL_3.value) \
+        .set_topic(run_config["ual_sensor"]) \
         .set_fields(run_config["inputs"]) \
         .build()
     input_data = connection.query_dataframe(inputs_query)
@@ -39,7 +41,7 @@ def main():
     target_query = InfluxQueryBuilder() \
         .set_bucket(run_config["lubw_bucket"]) \
         .set_range(run_config["start_time"], run_config["stop_time"]) \
-        .set_topic(sensors.LUBWSensors.DEBW015.value) \
+        .set_topic(run_config["lubw_sensor"]) \
         .set_fields(run_config["targets"]) \
         .build()
     target_data = connection.query_dataframe(target_query)
@@ -68,7 +70,7 @@ def main():
     os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv("MLFLOW_USERNAME")
     os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
     mlflow.set_tracking_uri("http://91.99.65.22:5000")
-    mlflow.set_experiment("Model Comparison 3")
+    mlflow.set_experiment(run_config["experiment_name"])
     model_signature = infer_signature(inputs_train, targets_train)
 
     with mlflow.start_run(run_name=run_config["run_name"]):

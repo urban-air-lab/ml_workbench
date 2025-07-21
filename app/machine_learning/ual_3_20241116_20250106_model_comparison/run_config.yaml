@@ -11,4 +11,5 @@ inputs:
   - sht_humid
 targets:
   - NO2
-run_name: "All Models"
+experiment_name: "Model Comparison NO2"
+run_name: "ual3-winter"
