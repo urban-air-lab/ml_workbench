@@ -63,7 +63,7 @@ def main():
 
     all_metrics = dict()
     all_predictions = dict()
-    all_predictions["ground truth"] = targets_test.values.flatten().tolist()
+    all_predictions["ground_truth"] = targets_test.values.flatten().tolist()
 
     os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv("MLFLOW_USERNAME")
     os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
@@ -97,7 +97,7 @@ def main():
 
         mlflow.log_figure(plot_data(data_processor), artifact_file="data_overview.png")
         mlflow.log_figure(plot_metrics(all_metrics), artifact_file="model_overview.png")
-        mlflow.log_figure(plot_predictions(all_predictions), artifact_file="predictions.png")
+        mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index), artifact_file="predictions.png")
         mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 
@@ -143,17 +143,16 @@ def plot_metrics(metrics: dict):
     return figure
 
 
-def plot_predictions(predictions: dict):
+def plot_predictions(predictions: dict, run_config, date_range):
     figure, axes = plt.subplots(nrows=6, ncols=1, figsize=(10, 12), sharex=True)
     for i, entry in enumerate(predictions.items()):
-        axes[i].plot(entry[1])
+        axes[i].plot(date_range, predictions["ground_truth"], label='Ground Truth', color='black', linestyle='--')
+        axes[i].plot(date_range, entry[1], label=entry[0])
         axes[i].set_title(entry[0])
         axes[i].set_xlabel('time')
         axes[i].set_ylabel('ppm')
-
-    plt.title("Model Performance")
-    plt.legend(title="predictions")
     sns.set(style="whitegrid", context="talk")
+    figure.suptitle(f'Model Predictions {run_config["targets"]}', fontsize=16)
     plt.tight_layout()
     return figure
 
