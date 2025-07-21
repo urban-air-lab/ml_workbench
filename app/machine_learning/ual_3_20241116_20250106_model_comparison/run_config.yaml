@@ -11,3 +11,4 @@ inputs:
   - sht_humid
 targets:
   - NO2
+run_name: "All Models"

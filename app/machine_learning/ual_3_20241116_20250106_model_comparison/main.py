@@ -71,7 +71,7 @@ def main():
     mlflow.set_experiment("Model Comparison 3")
     model_signature = infer_signature(inputs_train, targets_train)
 
-    with mlflow.start_run(run_name="All Models"):
+    with mlflow.start_run(run_name=run_config["run_name"]):
         for name, regressor in regressors.items():
             with mlflow.start_run(run_name=name, nested=True):
                 regressor.fit(inputs_train, targets_train)
@@ -95,14 +95,14 @@ def main():
                                              signature=model_signature,
                                              name="model")
 
-        mlflow.log_figure(plot_data(data_processor), artifact_file="data_overview.png")
-        mlflow.log_figure(plot_metrics(all_metrics), artifact_file="model_overview.png")
-        mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index), artifact_file="predictions.png")
+        mlflow.log_figure(plot_data(data_processor), artifact_file="train_data_overview.png")
+        mlflow.log_figure(plot_metrics(all_metrics), artifact_file="metrics_overview.png")
+        mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index), artifact_file="predictions_overview.png")
         mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 
 def plot_data(data_processor):
-    fig, axes = plt.subplots(nrows=6, ncols=1, figsize=(10, 12), sharex=True)
+    figure, axes = plt.subplots(nrows=6, ncols=1, figsize=(10, 12), sharex=True)
     for i, column in enumerate(data_processor.get_inputs().columns):
         axes[i].plot(data_processor.get_inputs()[column])
         axes[i].set_title(f'{column}')
@@ -120,8 +120,10 @@ def plot_data(data_processor):
     axes[5].set_xlabel('time')
     axes[5].set_ylabel('ppm')
     axes[5].grid(True)
+    sns.set(style="whitegrid", context="talk")
+    figure.suptitle(f'Models Training Data', fontsize=16)
     plt.tight_layout()
-    return fig
+    return figure
 
 
 def plot_metrics(metrics: dict):
@@ -135,7 +137,7 @@ def plot_metrics(metrics: dict):
     sns.barplot(data=df_melted, x="Model", y="Value", hue="Metric", palette=palette)
 
     plt.xticks(rotation=30, ha='right')
-    plt.title('Model Evaluation Metrics Comparison', fontsize=16)
+    plt.title('Models Evaluation Metrics Comparison', fontsize=16)
     plt.ylabel('Metric Value')
     plt.xlabel('Machine Learning Models')
     plt.legend(title='Metric')
@@ -152,7 +154,7 @@ def plot_predictions(predictions: dict, run_config, date_range):
         axes[i].set_xlabel('time')
         axes[i].set_ylabel('ppm')
     sns.set(style="whitegrid", context="talk")
-    figure.suptitle(f'Model Predictions {run_config["targets"]}', fontsize=16)
+    figure.suptitle(f'Models Predictions {run_config["targets"]}', fontsize=16)
     plt.tight_layout()
     return figure
 
