@@ -1,4 +1,5 @@
 .idea/
 __pycache__/
 /app/database/database_config.yaml
-/app/machine_learning/ual_1_20241114_20250107/data
+/app/machine_learning/ual_1_20241114_20250107_science_day/data
+/app/machine_learning/ual_3_20241116_20250106_model_comparison/.env

@@ -1,0 +1,14 @@
+start_time: "2024-11-16T00:00:00Z"
+stop_time: "2025-01-06T23:00:00Z"
+inputs:
+  - RAW_ADC_NO2_W
+  - RAW_ADC_NO2_A
+  - RAW_ADC_NO_W
+  - RAW_ADC_NO_A
+  - RAW_ADC_O3_W
+  - RAW_ADC_O3_A
+  - sht_temp
+  - sht_humid
+targets:
+  - NO2
+run_name: "All Models"

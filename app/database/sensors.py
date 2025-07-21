@@ -12,8 +12,8 @@ class LUBWSensors(Enum):
 
 class AQSNSensors(Enum):
     """
-    All current in use custom sensors from AirUP! project
+    All current in use custom sensors from UrbanAirLab project
     """
-    SONT_A = "sont_a"
-    SONT_B = "sont_b"
-    SONT_C = "sont_c"
+    UAL_1 = "ual-1"
+    UAL_2 = "ual-2"
+    UAL_3 = "ual-3"
