@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "04badde6ff0b7761dbd211bbe0c548e8b2f69c7ec719ef9bffb7d2689cdbc475"
+            "sha256": "63a9b0883febe7d3baef48f58a8c88502b44953cf6b394a607d2941068a7cba7"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -11,11 +11,6 @@
             {
                 "name": "pypi",
                 "url": "https://pypi.org/simple",
-                "verify_ssl": true
-            },
-            {
-                "name": "downloadpytorch",
-                "url": "https://download.pytorch.org/whl/cu126",
                 "verify_ssl": true
             }
         ]
