@@ -1,10 +1,13 @@
+from pathlib import Path
 import pandas as pd
+from app.get_config import _get_caller_directory
 
 
 class CSVDataLoader:
     def __init__(self, file_path: str):
+        os_independent_path = _get_caller_directory(2) / Path(file_path)
         try:
-            self.data = pd.read_csv(file_path)
+            self.data = pd.read_csv(os_independent_path, sep=";")
         except Exception as e:
             raise FileNotFoundError
         try:
