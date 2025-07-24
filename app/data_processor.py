@@ -51,7 +51,11 @@ class DataProcessor:
         return self.targets[target]
 
 
-def calculate_w_a_difference(dataframe, gases):
+def calculate_w_a_difference(dataframe: pd.DataFrame, gases: list) -> pd.DataFrame:
+    if not gases:
+        raise ValueError("No gases in list")
+    if dataframe.empty:
+        raise ValueError("dataframe is empty")
     for gas in gases:
         w_column = f"RAW_ADC_{gas}_W"
         a_column = f"RAW_ADC_{gas}_A"
@@ -63,7 +67,7 @@ def calculate_w_a_difference(dataframe, gases):
     return dataframe
 
 
-def align_dataframes_by_time(df1, df2):
+def align_dataframes_by_time(df1: pd.DataFrame, df2: pd.DataFrame) -> (pd.DataFrame, pd.DataFrame):
     df1.index = pd.to_datetime(df1.index)
     df2.index = pd.to_datetime(df2.index)
 
