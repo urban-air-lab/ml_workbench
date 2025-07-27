@@ -24,7 +24,7 @@ load_dotenv()
 def main():
     run_config = get_config("./run_config.yaml")
     run_config["ual_bucket"] = InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET.value
-    run_config["ual_sensor"] = sensors.AQSNSensors.UAL_3.value
+    run_config["ual_sensor"] = sensors.UALSensors.UAL_3.value
     run_config["lubw_bucket"] = InfluxBuckets.LUBW_HOUR_BUCKET.value
     run_config["lubw_sensor"] = sensors.LUBWSensors.DEBW015.value
 

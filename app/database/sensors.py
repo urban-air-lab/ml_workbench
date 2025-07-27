@@ -10,7 +10,7 @@ class LUBWSensors(Enum):
     DEBW152 = "DEBW152"
 
 
-class AQSNSensors(Enum):
+class UALSensors(Enum):
     """
     All current in use custom sensors from UrbanAirLab project
     """
