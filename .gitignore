@@ -2,3 +2,4 @@
 __pycache__/
 /app/database/database_config.yaml
 /app/machine_learning/model_comparison/.env
+/app/machine_learning/model_backtesting/.env

@@ -1,0 +1,15 @@
+start_time: '2025-06-13T00:00:00Z'
+stop_time: '2025-06-30T23:00:00Z'
+inputs:
+  - RAW_ADC_NO2_W
+  - RAW_ADC_NO2_A
+  - RAW_ADC_NO_W
+  - RAW_ADC_NO_A
+  - RAW_ADC_O3_W
+  - RAW_ADC_O3_A
+  - sht_temp
+  - sht_humid
+targets:
+  - NO2
+experiment_name: "Model Backtesting NO2"
+run_name: "ual3-winter-sommer"
