@@ -1,6 +1,11 @@
+import os
+
+from dotenv import load_dotenv
 from influxdb_client import InfluxDBClient
 import pandas as pd
 from app.get_config import get_config
+
+
 
 
 class InfluxDBConnector:
@@ -13,11 +18,10 @@ class InfluxDBConnector:
         :param org: InfluxDB organization name
         :param bucket: InfluxDB bucket name
         """
-
-        config = get_config("database_config.yaml")
-        self.url = config["url"]
-        self.token = config["token"]
-        self.org = config["org"]
+        load_dotenv()
+        self.url = os.getenv("INFLUX_URL")
+        self.token = os.getenv("INFLUX_TOKEN")
+        self.org = os.getenv("INFLUX_ORG")
         self.timeout = 60000
 
         self.client = InfluxDBClient(url=self.url, token=self.token, org=self.org)
