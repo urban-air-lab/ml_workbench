@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from app.get_config import _get_caller_directory
+from ual.get_config import _get_caller_directory
 
 
 class CSVDataLoader:

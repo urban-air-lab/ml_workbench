@@ -6,16 +6,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 import xgboost as xgb
 import seaborn as sns
-from app.data_processor import DataProcessor
-from app.database import sensors
-from app.database.Influx_db_connector import InfluxDBConnector
-from app.database.influx_buckets import InfluxBuckets
-from app.database.influx_query_builder import InfluxQueryBuilder
 import mlflow
 from mlflow.models.signature import infer_signature
 import pandas as pd
 from dotenv import load_dotenv
-from app.get_config import get_config
+from ual.data_processor import DataProcessor
+from ual.get_config import get_config
+from ual.influx import sensors
+from ual.influx.Influx_db_connector import InfluxDBConnector
+from ual.influx.influx_buckets import InfluxBuckets
+from ual.influx.influx_query_builder import InfluxQueryBuilder
+
 from app.model_evaluation import create_result_data, calculate_evaluation
 
 load_dotenv()

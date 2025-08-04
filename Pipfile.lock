@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f6a1835c9982febd0617f2616e9115304746b13606a2c076238a29e17dd628a2"
+            "sha256": "1663290c1e53fff49e216913fb179e88632d93a9b49517d6326a302f94855112"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,11 +18,11 @@
     "default": {
         "certifi": {
             "hashes": [
-                "sha256:6b31f564a415d79ee77df69d757bb49a5bb53bd9f756cbbe24394ffd6fc1f4b2",
-                "sha256:8ea99dbdfaaf2ba2f9bac77b9249ef62ec5218e7c2b2e903378ed5fccf765995"
+                "sha256:e564105f78ded564e3ae7c923924435e1daa7463faeab5bb932bc53ffae63407",
+                "sha256:f6c12493cfb1b06ba2ff328595af9350c65d6644968e5d3a2ffd78699af217a5"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==2025.7.14"
+            "version": "==2025.8.3"
         },
         "colorama": {
             "hashes": [
@@ -404,6 +404,14 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==25.0"
+        },
+        "paho-mqtt": {
+            "hashes": [
+                "sha256:12d6e7511d4137555a3f6ea167ae846af2c7357b10bc6fa4f7c3968fc1723834",
+                "sha256:6db9ba9b34ed5bc6b6e3812718c7e06e2fd7444540df2455d2c51bd58808feee"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==2.1.0"
         },
         "pandas": {
             "hashes": [
@@ -878,6 +886,10 @@
             ],
             "markers": "python_version >= '2'",
             "version": "==2025.2"
+        },
+        "ual": {
+            "git": "https://github.com/urban-air-lab/common.git",
+            "ref": "0d22b04c48b361515afed855566fcad15969de50"
         },
         "urllib3": {
             "hashes": [
