@@ -1,4 +1,6 @@
 import os
+
+import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
@@ -7,7 +9,7 @@ from sklearn.neighbors import KNeighborsRegressor
 import xgboost as xgb
 import seaborn as sns
 import mlflow
-from mlflow.models.signature import infer_signature
+from mlflow.models.signature import infer_signature, ModelSignature
 import pandas as pd
 from dotenv import load_dotenv
 from ual.data_processor import DataProcessor
@@ -23,31 +25,31 @@ load_dotenv()
 
 
 def main():
-    run_config = get_config("./run_config.yaml")
+    run_config: dict = get_config("./run_config.yaml")
     run_config["ual_bucket"] = InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET.value
     run_config["ual_sensor"] = sensors.UALSensors.UAL_3.value
     run_config["lubw_bucket"] = InfluxBuckets.LUBW_HOUR_BUCKET.value
     run_config["lubw_sensor"] = sensors.LUBWSensors.DEBW015.value
 
-    connection = InfluxDBConnector()
+    connection: InfluxDBConnector = InfluxDBConnector()
 
-    inputs_query = InfluxQueryBuilder() \
+    inputs_query: str = InfluxQueryBuilder() \
         .set_bucket(run_config["ual_bucket"]) \
         .set_range(run_config["start_time"], run_config["stop_time"]) \
         .set_topic(run_config["ual_sensor"]) \
         .set_fields(run_config["inputs"]) \
         .build()
-    input_data = connection.query_dataframe(inputs_query)
+    input_data: pd.DataFrame = connection.query_dataframe(inputs_query)
 
-    target_query = InfluxQueryBuilder() \
+    target_query: str = InfluxQueryBuilder() \
         .set_bucket(run_config["lubw_bucket"]) \
         .set_range(run_config["start_time"], run_config["stop_time"]) \
         .set_topic(run_config["lubw_sensor"]) \
         .set_fields(run_config["targets"]) \
         .build()
-    target_data = connection.query_dataframe(target_query)
+    target_data: pd.DataFrame = connection.query_dataframe(target_query)
 
-    data_processor = (DataProcessor(input_data, target_data)
+    data_processor: DataProcessor = (DataProcessor(input_data, target_data)
                       .to_hourly()
                       .remove_nan()
                       .calculate_w_a_difference()
@@ -58,7 +60,7 @@ def main():
                                                                               test_size=0.2,
                                                                               shuffle=False)
 
-    regressors = {"RandomForestRegressor": RandomForestRegressor(),
+    regressors: dict = {"RandomForestRegressor": RandomForestRegressor(),
                   "GradientBoostingRegressor": GradientBoostingRegressor(),
                   "KNeighborsRegressor": KNeighborsRegressor(n_neighbors=5),
                   "LinearRegression": LinearRegression(),
@@ -72,20 +74,20 @@ def main():
     os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
     mlflow.set_tracking_uri("http://91.99.65.22:5000")
     mlflow.set_experiment(run_config["experiment_name"])
-    model_signature = infer_signature(inputs_train, targets_train)
+    model_signature: ModelSignature = infer_signature(inputs_train, targets_train)
 
     with mlflow.start_run(run_name=run_config["run_name"]):
         for name, regressor in regressors.items():
             with mlflow.start_run(run_name=name, nested=True):
                 regressor.fit(inputs_train, targets_train)
-                prediction = regressor.predict(inputs_test)
-                if prediction.ndim == 2:
+                prediction: np.ndarray = regressor.predict(inputs_test)
+                if prediction == 2:
                     all_predictions[name] = prediction.flatten().tolist()
                 else:
                     all_predictions[name] = prediction.tolist()
 
-                results = create_result_data(targets_test, prediction, inputs_test)
-                metrics = calculate_evaluation(results)
+                results: pd.DataFrame = create_result_data(targets_test, prediction, inputs_test)
+                metrics: dict[str, float] = calculate_evaluation(results)
                 all_metrics[name] = metrics
 
                 mlflow.log_metrics(metrics)
@@ -104,7 +106,7 @@ def main():
         mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 
-def plot_data(data_processor):
+def plot_data(data_processor: DataProcessor) -> plt.Figure:
     figure, axes = plt.subplots(nrows=6, ncols=1, figsize=(10, 12), sharex=True)
     for i, column in enumerate(data_processor.get_inputs().columns):
         axes[i].plot(data_processor.get_inputs()[column])
@@ -129,7 +131,7 @@ def plot_data(data_processor):
     return figure
 
 
-def plot_metrics(metrics: dict):
+def plot_metrics(metrics: dict) -> plt.Figure:
     df = pd.DataFrame(metrics).T.reset_index().rename(columns={'index': 'Model'})
     df_melted = df.melt(id_vars='Model', var_name='Metric', value_name='Value')
 
@@ -148,7 +150,7 @@ def plot_metrics(metrics: dict):
     return figure
 
 
-def plot_predictions(predictions: dict, run_config, date_range):
+def plot_predictions(predictions: dict, run_config: dict, date_range: list) -> plt.Figure:
     figure, axes = plt.subplots(nrows=6, ncols=1, figsize=(10, 12), sharex=True)
     for i, entry in enumerate(predictions.items()):
         axes[i].plot(date_range, predictions["ground_truth"], label='Ground Truth', color='black', linestyle='--')
