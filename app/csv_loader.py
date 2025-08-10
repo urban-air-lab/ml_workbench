@@ -1,10 +1,12 @@
 from pathlib import Path
+from typing import Self
+
 import pandas as pd
 from ual.get_config import _get_caller_directory
 
 
 class CSVDataLoader:
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str) -> None:
         os_independent_path = _get_caller_directory(2) / Path(file_path)
         try:
             self.data = pd.read_csv(os_independent_path, sep=";")
@@ -18,10 +20,10 @@ class CSVDataLoader:
             print("No Datetime Column in Dataframe?: ", e)
         self._drop_999_values()
 
-    def _drop_999_values(self):
+    def _drop_999_values(self) -> None:
         self.data = self.data[~(self.data == -999).any(axis=1)]
 
-    def set_timespan(self, start_time, end_time):
+    def set_timespan(self, start_time, end_time) -> Self:
         mask = (self.data.index > start_time) & (self.data.index <= end_time)
         self.data = self.data.loc[mask]
         return self
