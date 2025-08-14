@@ -1,6 +1,4 @@
 from pathlib import Path
-from typing import Self
-
 import pandas as pd
 from ual.get_config import _get_caller_directory
 
@@ -23,7 +21,7 @@ class CSVDataLoader:
     def _drop_999_values(self) -> None:
         self.data = self.data[~(self.data == -999).any(axis=1)]
 
-    def set_timespan(self, start_time, end_time) -> Self:
+    def set_timespan(self, start_time, end_time):
         mask = (self.data.index > start_time) & (self.data.index <= end_time)
         self.data = self.data.loc[mask]
         return self
