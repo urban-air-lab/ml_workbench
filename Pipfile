@@ -16,6 +16,8 @@ scipy = "*"
 seaborn = "*"
 dotenv = "*"
 ual = {ref = "main", git = "https://github.com/urban-air-lab/common.git"}
+xgboost = "*"
+mlflow = "*"
 
 [dev-packages]
 
