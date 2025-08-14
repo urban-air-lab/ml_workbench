@@ -81,7 +81,7 @@ def main():
             with mlflow.start_run(run_name=name, nested=True):
                 regressor.fit(inputs_train, targets_train)
                 prediction: np.ndarray = regressor.predict(inputs_test)
-                if prediction == 2:
+                if prediction.ndim == 2:
                     all_predictions[name] = prediction.flatten().tolist()
                 else:
                     all_predictions[name] = prediction.tolist()
