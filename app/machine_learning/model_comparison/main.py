@@ -31,7 +31,8 @@ def main():
     run_config["lubw_bucket"] = InfluxBuckets.LUBW_HOUR_BUCKET.value
     run_config["lubw_sensor"] = sensors.LUBWSensors.DEBW015.value
 
-    connection: InfluxDBConnector = InfluxDBConnector()
+    connection: InfluxDBConnector = InfluxDBConnector(os.getenv("INFLUX_URL"), os.getenv("INFLUX_TOKEN"),
+                                                      os.getenv("INFLUX_ORG"))
 
     inputs_query: str = InfluxQueryBuilder() \
         .set_bucket(run_config["ual_bucket"]) \
@@ -50,21 +51,22 @@ def main():
     target_data: pd.DataFrame = connection.query_dataframe(target_query)
 
     data_processor: DataProcessor = (DataProcessor(input_data, target_data)
-                      .to_hourly()
-                      .remove_nan()
-                      .calculate_w_a_difference()
-                      .align_dataframes_by_time())
+                                     .to_hourly()
+                                     .remove_nan()
+                                     .calculate_w_a_difference()
+                                     .align_dataframes_by_time())
 
     inputs_train, inputs_test, targets_train, targets_test = train_test_split(data_processor.get_inputs(),
-                                                                              data_processor.get_target(run_config["targets"]),
+                                                                              data_processor.get_target(
+                                                                                  run_config["targets"]),
                                                                               test_size=0.2,
                                                                               shuffle=False)
 
     regressors: dict = {"RandomForestRegressor": RandomForestRegressor(),
-                  "GradientBoostingRegressor": GradientBoostingRegressor(),
-                  "KNeighborsRegressor": KNeighborsRegressor(n_neighbors=5),
-                  "LinearRegression": LinearRegression(),
-                  "XGBRegressor": xgb.XGBRegressor(objective='reg:squarederror', n_estimators=10)}
+                        "GradientBoostingRegressor": GradientBoostingRegressor(),
+                        "KNeighborsRegressor": KNeighborsRegressor(n_neighbors=5),
+                        "LinearRegression": LinearRegression(),
+                        "XGBRegressor": xgb.XGBRegressor(objective='reg:squarederror', n_estimators=10)}
 
     all_metrics = dict()
     all_predictions = dict()
@@ -102,7 +104,8 @@ def main():
 
         mlflow.log_figure(plot_data(data_processor), artifact_file="train_data_overview.png")
         mlflow.log_figure(plot_metrics(all_metrics), artifact_file="metrics_overview.png")
-        mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index), artifact_file="predictions_overview.png")
+        mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index),
+                          artifact_file="predictions_overview.png")
         mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 

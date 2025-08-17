@@ -24,9 +24,10 @@ def main():
     run_config["lubw_bucket"] = InfluxBuckets.LUBW_HOUR_BUCKET.value
     run_config["lubw_sensor"] = sensors.LUBWSensors.DEBW015.value
 
-    connection: InfluxDBConnector = InfluxDBConnector()
+    connection: InfluxDBConnector = InfluxDBConnector(os.getenv("INFLUX_URL"), os.getenv("INFLUX_TOKEN"),
+                                                      os.getenv("INFLUX_ORG"))
 
-    inputs_query:str = InfluxQueryBuilder() \
+    inputs_query: str = InfluxQueryBuilder() \
         .set_bucket(run_config["ual_bucket"]) \
         .set_range(run_config["start_time"], run_config["stop_time"]) \
         .set_topic(run_config["ual_sensor"]) \
@@ -43,10 +44,10 @@ def main():
     target_data: pd.DataFrame = connection.query_dataframe(target_query)
 
     data_processor: DataProcessor = (DataProcessor(input_data, target_data)
-                      .to_hourly()
-                      .remove_nan()
-                      .calculate_w_a_difference()
-                      .align_dataframes_by_time())
+                                     .to_hourly()
+                                     .remove_nan()
+                                     .calculate_w_a_difference()
+                                     .align_dataframes_by_time())
 
     os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv("MLFLOW_USERNAME")
     os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
@@ -63,7 +64,8 @@ def main():
     all_predictions["backtesting"] = prediction.tolist()
 
     with mlflow.start_run(run_name=run_config["run_name"]):
-        mlflow.log_figure(plot_predictions(all_predictions, run_config, data_processor.get_target("NO2").index), artifact_file="predictions_overview.png")
+        mlflow.log_figure(plot_predictions(all_predictions, run_config, data_processor.get_target("NO2").index),
+                          artifact_file="predictions_overview.png")
         mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 

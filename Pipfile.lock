@@ -1729,7 +1729,7 @@
         },
         "ual": {
             "git": "https://github.com/urban-air-lab/common.git",
-            "ref": "0d22b04c48b361515afed855566fcad15969de50"
+            "ref": "79f15bd3fbfc0aae2f9bbc91d3a07e636d665682"
         },
         "urllib3": {
             "hashes": [
