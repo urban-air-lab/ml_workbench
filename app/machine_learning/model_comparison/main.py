@@ -18,6 +18,7 @@ from ual.influx import sensors
 from ual.influx.Influx_db_connector import InfluxDBConnector
 from ual.influx.influx_buckets import InfluxBuckets
 from ual.influx.influx_query_builder import InfluxQueryBuilder
+from ual.influx.sensors import SensorSource
 
 from app.model_evaluation import create_result_data, calculate_evaluation
 
@@ -25,27 +26,32 @@ load_dotenv()
 
 
 def main():
+    ual_source = SensorSource(bucket=InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET,
+                              sensor=sensors.UALSensors.UAL_3)
+    lubw_source = SensorSource(bucket=InfluxBuckets.LUBW_HOUR_BUCKET,
+                               sensor=sensors.LUBWSensors.DEBW015)
+
     run_config: dict = get_config("./run_config.yaml")
-    run_config["ual_bucket"] = InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET.value
-    run_config["ual_sensor"] = sensors.UALSensors.UAL_3.value
-    run_config["lubw_bucket"] = InfluxBuckets.LUBW_HOUR_BUCKET.value
-    run_config["lubw_sensor"] = sensors.LUBWSensors.DEBW015.value
+    run_config["ual_bucket"] = ual_source.get_bucket()
+    run_config["ual_sensor"] = ual_source.get_sensor()
+    run_config["lubw_bucket"] = lubw_source.get_bucket()
+    run_config["lubw_sensor"] = lubw_source.get_sensor()
 
     connection: InfluxDBConnector = InfluxDBConnector(os.getenv("INFLUX_URL"), os.getenv("INFLUX_TOKEN"),
                                                       os.getenv("INFLUX_ORG"))
 
     inputs_query: str = InfluxQueryBuilder() \
-        .set_bucket(run_config["ual_bucket"]) \
+        .set_bucket(ual_source.get_bucket()) \
         .set_range(run_config["start_time"], run_config["stop_time"]) \
-        .set_topic(run_config["ual_sensor"]) \
+        .set_topic(ual_source.get_sensor()) \
         .set_fields(run_config["inputs"]) \
         .build()
     input_data: pd.DataFrame = connection.query_dataframe(inputs_query)
 
     target_query: str = InfluxQueryBuilder() \
-        .set_bucket(run_config["lubw_bucket"]) \
+        .set_bucket(lubw_source.get_bucket()) \
         .set_range(run_config["start_time"], run_config["stop_time"]) \
-        .set_topic(run_config["lubw_sensor"]) \
+        .set_topic(lubw_source.get_sensor()) \
         .set_fields(run_config["targets"]) \
         .build()
     target_data: pd.DataFrame = connection.query_dataframe(target_query)
@@ -53,12 +59,11 @@ def main():
     data_processor: DataProcessor = (DataProcessor(input_data, target_data)
                                      .to_hourly()
                                      .remove_nan()
-                                     .calculate_w_a_difference()
+                                     .calculate_w_a_difference(['NO', 'NO2', 'O3'])
                                      .align_dataframes_by_time())
 
     inputs_train, inputs_test, targets_train, targets_test = train_test_split(data_processor.get_inputs(),
-                                                                              data_processor.get_target(
-                                                                                  run_config["targets"]),
+                                                                              data_processor.get_targets(),
                                                                               test_size=0.2,
                                                                               shuffle=False)
 
@@ -123,12 +128,12 @@ def plot_data(data_processor: DataProcessor) -> plt.Figure:
         if "W_A" in column:
             axes[i].set_ylabel("mV")
 
-    axes[5].plot(data_processor.get_target("NO2"))
+    axes[5].plot(data_processor.get_targets())
     axes[5].set_title('NO2')
     axes[5].set_xlabel('time')
     axes[5].set_ylabel('ppm')
     axes[5].grid(True)
-    sns.set(style="whitegrid", context="talk")
+    sns.set_theme(style="whitegrid", context="talk")
     figure.suptitle(f'Models Training Data', fontsize=16)
     plt.tight_layout()
     return figure
@@ -138,7 +143,7 @@ def plot_metrics(metrics: dict) -> plt.Figure:
     df = pd.DataFrame(metrics).T.reset_index().rename(columns={'index': 'Model'})
     df_melted = df.melt(id_vars='Model', var_name='Metric', value_name='Value')
 
-    sns.set(style="whitegrid")
+    sns.set_theme(style="whitegrid")
     palette = sns.color_palette("Set2", n_colors=5)
 
     figure = plt.figure(figsize=(14, 7))
@@ -161,7 +166,7 @@ def plot_predictions(predictions: dict, run_config: dict, date_range: list) -> p
         axes[i].set_title(entry[0])
         axes[i].set_xlabel('time')
         axes[i].set_ylabel('ppm')
-    sns.set(style="whitegrid", context="talk")
+    sns.set_theme(style="whitegrid", context="talk")
     figure.suptitle(f'Models Predictions {run_config["targets"]}', fontsize=16)
     plt.tight_layout()
     return figure
