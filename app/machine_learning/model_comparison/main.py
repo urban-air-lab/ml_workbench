@@ -79,7 +79,7 @@ def main():
 
     os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv("MLFLOW_USERNAME")
     os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
-    mlflow.set_tracking_uri("http://91.99.65.22:5000")
+    mlflow.set_tracking_uri(os.getenv("MLFLOW_URL"))
     mlflow.set_experiment(run_config["experiment_name"])
     model_signature: ModelSignature = infer_signature(inputs_train, targets_train)
 
