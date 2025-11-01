@@ -25,6 +25,17 @@ All components are deployed on a VServer hostet by cloud provider.
 
 
 ## Project Setup
+The dependencies are managed by uv. To install and get more information about uv, get follow this documentation:
+```
+https://docs.astral.sh/uv/getting-started/installation/
+```
+
+To install all needed dependencies run 
+
+```
+uv sync --locked
+```
+
 To setup the project you need to install requirements.txt and create a database_config.yaml in database package, 
 database_config.yaml has to have following structure 
 
@@ -35,7 +46,11 @@ org: [organization of InfluxDB instance]
 ```
 
 ## Run Tests
-Tests are base on Pytest - run all tests via comand line "pytest"
+Tests are base on Pytest - run all tests via comand line:
+
+```
+uv run pytest
+```
 
 
 
