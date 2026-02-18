@@ -52,6 +52,17 @@ Tests are base on Pytest - run all tests via command line:
 uv run pytest
 ```
 
+## Update UAl Commons
+To update changes in UAL commons library use this commands:
+```
+uv lock --upgrade-package ual
+uv sync
+```
+
+
+
+
+
 
 
 
