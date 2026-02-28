@@ -1,3 +1,7 @@
+ual_bucket: "ual-minute-calibration"
+ual_sensor: "ual-3"
+lubw_bucket: "lubw-hour"
+lubw_sensor: "DEBW015"
 start_time: '2025-06-13T00:00:00Z'
 stop_time: '2025-06-30T23:00:00Z'
 inputs:

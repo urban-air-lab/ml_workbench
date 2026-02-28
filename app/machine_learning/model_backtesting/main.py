@@ -19,16 +19,10 @@ load_dotenv()
 
 
 def main():
-    ual_source = SensorSource(bucket=InfluxBuckets.UAL_MINUTE_CALIBRATION_BUCKET,
-                              sensor=sensors.UALSensors.UAL_3)
-    lubw_source = SensorSource(bucket=InfluxBuckets.LUBW_HOUR_BUCKET,
-                               sensor=sensors.LUBWSensors.DEBW015)
-
     run_config: dict = get_config("./run_config.yaml")
-    run_config["ual_bucket"] = ual_source.get_bucket()
-    run_config["ual_sensor"] = ual_source.get_sensor()
-    run_config["lubw_bucket"] = lubw_source.get_bucket()
-    run_config["lubw_sensor"] = lubw_source.get_sensor()
+
+    ual_source = SensorSource.from_strings(bucket=run_config["ual_bucket"], sensor=run_config["ual_sensor"])
+    lubw_source = SensorSource.from_strings(bucket=run_config["lubw_bucket"], sensor=run_config["lubw_sensor"])
 
     connection: InfluxDBConnector = InfluxDBConnector(os.getenv("INFLUX_URL"), os.getenv("INFLUX_TOKEN"),
                                                       os.getenv("INFLUX_ORG"))
