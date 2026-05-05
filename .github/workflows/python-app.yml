@@ -34,3 +34,10 @@ jobs:
     - name: Run tests with pytest
       run: |
         uv run pytest
+
+    - name: Run linter with ruff
+      run: uv run ruff check .
+
+    - name: Run security check with pip-audit
+      continue-on-error: true
+      run: uv run pip-audit
