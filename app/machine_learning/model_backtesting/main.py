@@ -9,9 +9,7 @@ import mlflow
 from sklearn.base import BaseEstimator
 from ual.data_processor import DataProcessor
 from ual.get_config import get_config
-from ual.influx import sensors
 from ual.influx.Influx_db_connector import InfluxDBConnector
-from ual.influx.influx_buckets import InfluxBuckets
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
 

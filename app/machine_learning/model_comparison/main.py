@@ -14,9 +14,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from ual.data_processor import DataProcessor
 from ual.get_config import get_config
-from ual.influx import sensors
 from ual.influx.Influx_db_connector import InfluxDBConnector
-from ual.influx.influx_buckets import InfluxBuckets
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
 
@@ -128,7 +126,7 @@ def plot_data(data_processor: DataProcessor) -> plt.Figure:
     axes[5].set_ylabel('ppm')
     axes[5].grid(True)
     sns.set_theme(style="whitegrid", context="talk")
-    figure.suptitle(f'Models Training Data', fontsize=16)
+    figure.suptitle('Models Training Data', fontsize=16)
     plt.tight_layout()
     return figure
 

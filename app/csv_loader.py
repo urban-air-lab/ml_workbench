@@ -8,7 +8,7 @@ class CSVDataLoader:
         os_independent_path = _get_caller_directory(2) / Path(file_path)
         try:
             self.data = pd.read_csv(os_independent_path, sep=";")
-        except Exception as e:
+        except Exception:
             raise FileNotFoundError
         try:
             self.data.drop_duplicates(subset=['datetime'], inplace=True)
