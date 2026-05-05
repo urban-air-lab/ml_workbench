@@ -69,28 +69,28 @@ uv sync
 ## Use Ruff for linting
 fix linting errors
 ```
-ruff check --fix .
+uv run ruff check --fix .
 ```
 
 format code
 ```
-ruff format . 
+uv run ruff format . 
 ```
 
 ## Use MyPy for static type checking: 
 
 ```
-mypy .
+uv run mypy .
 ```
 
 ## Use isort for sort imports
 ```
-isort .
+uv run isort .
 ```
 
 ## Use pip-audit for dependency vulnerabilities 
 ``
-pip-audit
+uv run pip-audit
 ``
 
 
