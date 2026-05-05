@@ -1,7 +1,9 @@
-import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error, \
-    root_mean_squared_error
+import pandas as pd
+from sklearn.metrics import (mean_absolute_error,
+                             mean_absolute_percentage_error,
+                             mean_squared_error, r2_score,
+                             root_mean_squared_error)
 
 
 def create_result_data(true_values, prediction_values, input_values) -> pd.DataFrame:

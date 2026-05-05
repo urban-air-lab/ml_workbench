@@ -1,21 +1,21 @@
 import os
 
+import mlflow
 import numpy as np
+import pandas as pd
+import seaborn as sns
+from dotenv import load_dotenv
 from matplotlib import pyplot as plt
+from mlflow.models.signature import ModelSignature, infer_signature
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-import seaborn as sns
-import mlflow
-from mlflow.models.signature import infer_signature, ModelSignature
-import pandas as pd
-from dotenv import load_dotenv
 from ual.data_processor import DataProcessor
 from ual.get_config import get_config
 from ual.influx.Influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
 
-from app.model_evaluation import create_result_data, calculate_evaluation
+from app.model_evaluation import calculate_evaluation, create_result_data
 
 load_dotenv()
 

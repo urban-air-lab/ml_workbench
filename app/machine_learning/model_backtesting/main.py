@@ -1,11 +1,11 @@
 import os
 
+import mlflow
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from dotenv import load_dotenv
 from matplotlib import pyplot as plt
-import seaborn as sns
-import mlflow
 from sklearn.base import BaseEstimator
 from ual.data_processor import DataProcessor
 from ual.get_config import get_config
