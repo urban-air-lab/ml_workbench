@@ -45,6 +45,13 @@ token: [auth token of InfluxDB instance]
 org: [organization of InfluxDB instance]
 ```
 
+## Bump up version number
+After changing the version in pyproject.toml you need to run
+
+```
+uv lock
+```
+
 ## Run Tests
 Tests are base on Pytest - run all tests via command line:
 
@@ -59,7 +66,32 @@ uv lock --upgrade-package ual
 uv sync
 ```
 
+## Use Ruff for linting
+fix linting errors
+```
+ruff check --fix .
+```
 
+format code
+```
+ruff format . 
+```
+
+## Use MyPy for static type checking: 
+
+```
+mypy .
+```
+
+## Use isort for sort imports
+```
+isort .
+```
+
+## Use pip-audit for dependency vulnerabilities 
+``
+pip-audit
+``
 
 
 
