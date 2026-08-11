@@ -10,6 +10,7 @@ from ual.influx.Influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
 import seaborn as sns
+from saqc import SaQC, BAD
 
 load_dotenv()
 
@@ -45,7 +46,22 @@ data_processor: DataProcessor = (DataProcessor(input_data, target_data)
 
 merged_data = pd.concat([data_processor.get_inputs(), data_processor.get_targets()], axis=1)
 
-matrix = merged_data.corr()
+saqc = SaQC(merged_data)
+saqc = (saqc
+        .flagRange("RAW_ADC_CO_W", min=260, max=702)
+        .flagRange("RAW_ADC_CO_A", min=274, max=361)
+        .flagRange("RAW_ADC_O3_W", min=193, max=245)
+        .flagRange("RAW_ADC_O3_A", min=218, max=247)
+        .flagRange("RAW_ADC_NO2_W", min=170, max=258)
+        .flagRange("RAW_ADC_NO2_A", min=217, max=246)
+        .flagRange("RAW_ADC_NO_W", min=224, max=650)
+        .flagRange("RAW_ADC_NO_A", min=244, max=527))
+
+print(saqc.columns)
+print(saqc.data)
+
+clean_data = saqc.data.to_pandas().mask(saqc.flags.to_pandas() >= BAD)
+matrix = clean_data.corr()
 matrix_sorted = matrix.loc[data_processor.get_inputs().columns, ["NO", "NO2", "O3", "PM10", "PM2.5"]]
 print(matrix_sorted)
 
@@ -65,10 +81,10 @@ os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
 mlflow.set_tracking_uri(os.getenv("MLFLOW_URL"))
 mlflow.set_experiment(run_config["experiment_name"])
 
-#with mlflow.start_run(run_name=run_config["run_name"]):
-    #mlflow.log_figure(correlation_figure, artifact_file="correlation_plot.png")
-    #mlflow.log_text(matrix.to_csv(), artifact_file="correlation_matrix.csv")
-    #mlflow.log_dict(run_config, artifact_file="run_config.yaml")
+with mlflow.start_run(run_name=run_config["run_name"]):
+    mlflow.log_figure(correlation_figure, artifact_file="correlation_plot.png")
+    mlflow.log_text(matrix.to_csv(), artifact_file="correlation_matrix.csv")
+    mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 plt.show()
 

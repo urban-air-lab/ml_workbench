@@ -1,0 +1,34 @@
+ual_bucket: "ual-minute-calibration"
+ual_sensor: "ual-3"
+lubw_bucket: "lubw-hour"
+lubw_sensor: "DEBW015"
+start_time: "2024-11-16T00:00:00Z"
+stop_time: "2025-03-08T20:00:00Z"
+inputs:
+  - RAW_ADC_CO_A
+  - RAW_ADC_CO_W
+  - RAW_ADC_NO2_W
+  - RAW_ADC_NO2_A
+  - RAW_ADC_NO_W
+  - RAW_ADC_NO_A
+  - RAW_ADC_O3_W
+  - RAW_ADC_O3_A
+  - RAW_OPC_PM1
+  - RAW_OPC_PM10
+  - RAW_OPC_PM2.5
+  - RAW_OPC_SFR
+  - RAW_OPC_Temperature
+  - sht_temp
+  - sht_humid
+  - opc_flow
+  - opc_humid
+  - opc_temp
+targets:
+  - "NO2"
+  - "NO"
+  - "CO"
+  - "O3"
+  - "PM10"
+  - "PM2.5"
+experiment_name: "Correlation Matrix"
+run_name: "Correlation Matrix 5 - Clean up"
