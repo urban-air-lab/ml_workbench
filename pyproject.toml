@@ -17,6 +17,7 @@ dependencies = [
     "pytest>=9.0.3",
     "pyyaml>=6.0.3",
     "ruff>=0.15.12",
+    "saqc>=2.9.1",
     "scikit-learn>=1.8.0",
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
