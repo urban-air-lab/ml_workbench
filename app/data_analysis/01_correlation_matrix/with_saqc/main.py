@@ -55,6 +55,12 @@ saqc = (saqc
         .flagRange("RAW_ADC_NO2_W", min=170, max=258)
         .flagRange("RAW_ADC_NO2_A", min=217, max=246)
         .flagRange("RAW_ADC_NO_W", min=224, max=650)
+        .flagRange("RAW_ADC_NO_A", min=244, max=527)
+        .flagRange("NO2", min=0, max=1800)
+        .flagRange("NO", min=0, max=1200)
+        .flagRange("O3", min=0, max=1900)
+        .flagRange("PM10", min=0, max=10000)
+        .flagRange("PM2.5", min=0, max=10000)
         .flagRange("RAW_ADC_NO_A", min=244, max=527))
 
 print(saqc.columns)
