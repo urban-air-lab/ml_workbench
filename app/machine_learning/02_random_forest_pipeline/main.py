@@ -58,45 +58,57 @@ def main():
 
     regressors: dict = {"RandomForestRegressor": RandomForestRegressor()}
 
-    all_metrics = dict()
-    all_predictions = dict()
-    all_predictions["ground_truth"] = targets_test.values.flatten().tolist()
+    # train every regressor and evaluate it on the test set
+    all_predictions: dict = {"ground_truth": targets_test.values.flatten().tolist()}
+    all_metrics: dict = dict()
+    for name, regressor in regressors.items():
+        all_predictions[name] = train_and_predict(regressor, inputs_train, targets_train, inputs_test)
+        all_metrics[name] = evaluate(targets_test, all_predictions[name], inputs_test)
 
-    os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv("MLFLOW_USERNAME")
-    os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
-    mlflow.set_tracking_uri(os.getenv("MLFLOW_URL"))
-    mlflow.set_experiment(run_config["experiment_name"])
+    # push models, metrics and plots to mlflow
+    setup_mlflow(run_config)
     model_signature: ModelSignature = infer_signature(inputs_train, targets_train)
-
     with mlflow.start_run(run_name=run_config["run_name"]):
         for name, regressor in regressors.items():
-            with mlflow.start_run(run_name=name, nested=True):
-                regressor.fit(inputs_train, targets_train)
-                prediction: np.ndarray = regressor.predict(inputs_test)
-                if prediction.ndim == 2:
-                    all_predictions[name] = prediction.flatten().tolist()
-                else:
-                    all_predictions[name] = prediction.tolist()
-
-                results: pd.DataFrame = create_result_data(targets_test, prediction, inputs_test)
-                metrics: dict[str, float] = calculate_evaluation(results)
-                all_metrics[name] = metrics
-
-                mlflow.log_metrics(metrics)
-                if name == "XGBRegressor":
-                    mlflow.xgboost.log_model(xgb_model=regressor,
-                                             signature=model_signature,
-                                             name="model")
-                else:
-                    mlflow.sklearn.log_model(sk_model=regressor,
-                                             signature=model_signature,
-                                             name="model")
+            log_run(name, regressor, all_metrics[name], model_signature)
 
         mlflow.log_figure(plot_data(data_processor), artifact_file="train_data_overview.png")
         mlflow.log_figure(plot_metrics(all_metrics), artifact_file="metrics_overview.png")
         mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index),
                           artifact_file="predictions_overview.png")
         mlflow.log_dict(run_config, artifact_file="run_config.yaml")
+
+
+def train_and_predict(regressor, inputs_train: pd.DataFrame, targets_train: pd.DataFrame,
+                      inputs_test: pd.DataFrame) -> list[float]:
+    regressor.fit(inputs_train, targets_train)
+    prediction: np.ndarray = regressor.predict(inputs_test)
+    return prediction.flatten().tolist()
+
+
+def evaluate(targets_test: pd.DataFrame, prediction: list[float], inputs_test: pd.DataFrame) -> dict[str, float]:
+    results: pd.DataFrame = create_result_data(targets_test, np.asarray(prediction), inputs_test)
+    return calculate_evaluation(results)
+
+
+def setup_mlflow(run_config: dict) -> None:
+    os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv("MLFLOW_USERNAME")
+    os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
+    mlflow.set_tracking_uri(os.getenv("MLFLOW_URL"))
+    mlflow.set_experiment(run_config["experiment_name"])
+
+
+def log_run(name: str, regressor, metrics: dict[str, float], model_signature: ModelSignature) -> None:
+    with mlflow.start_run(run_name=name, nested=True):
+        mlflow.log_metrics(metrics)
+        if name == "XGBRegressor":
+            mlflow.xgboost.log_model(xgb_model=regressor,
+                                     signature=model_signature,
+                                     name="model")
+        else:
+            mlflow.sklearn.log_model(sk_model=regressor,
+                                     signature=model_signature,
+                                     name="model")
 
 
 def plot_data(data_processor: DataProcessor) -> plt.Figure:
