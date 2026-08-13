@@ -100,9 +100,12 @@ def main():
 
 
 def plot_data(data_processor: DataProcessor) -> plt.Figure:
-    figure, axes = plt.subplots(nrows=6, ncols=1, figsize=(10, 12), sharex=True)
-    for i, column in enumerate(data_processor.get_inputs().columns):
-        axes[i].plot(data_processor.get_inputs()[column])
+    inputs: pd.DataFrame = data_processor.get_inputs()
+    targets: pd.DataFrame = data_processor.get_targets()
+    nrows: int = len(inputs.columns) + 1
+    figure, axes = plt.subplots(nrows=nrows, ncols=1, figsize=(10, 2 * nrows), sharex=True)
+    for i, column in enumerate(inputs.columns):
+        axes[i].plot(inputs[column])
         axes[i].set_title(f'{column}')
         axes[i].grid(True)
         axes[i].set_xlabel('time')
@@ -113,11 +116,11 @@ def plot_data(data_processor: DataProcessor) -> plt.Figure:
         if "W_A" in column:
             axes[i].set_ylabel("mV")
 
-    axes[5].plot(data_processor.get_targets())
-    axes[5].set_title('NO2')
-    axes[5].set_xlabel('time')
-    axes[5].set_ylabel('ppm')
-    axes[5].grid(True)
+    axes[-1].plot(targets)
+    axes[-1].set_title(', '.join(map(str, targets.columns)))
+    axes[-1].set_xlabel('time')
+    axes[-1].set_ylabel('ppm')
+    axes[-1].grid(True)
     sns.set_theme(style="whitegrid", context="talk")
     figure.suptitle('Models Training Data', fontsize=16)
     plt.tight_layout()
