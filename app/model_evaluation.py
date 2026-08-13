@@ -72,14 +72,14 @@ def plot_data(data_processor: DataProcessor) -> plt.Figure:
     return figure
 
 
-def plot_metrics(metrics: dict) -> plt.Figure:
+def plot_metrics(metrics: dict, figsize: tuple = (7, 4)) -> plt.Figure:
     df = pd.DataFrame(metrics).T.reset_index().rename(columns={'index': 'Model'})
     df_melted = df.melt(id_vars='Model', var_name='Metric', value_name='Value')
 
     sns.set_theme(style="whitegrid")
     palette = sns.color_palette("Set2", n_colors=5)
 
-    figure = plt.figure(figsize=(7, 4))
+    figure = plt.figure(figsize=figsize)
     sns.barplot(data=df_melted, x="Model", y="Value", hue="Metric", palette=palette)
 
     plt.xticks(rotation=30, ha='right')
@@ -92,7 +92,8 @@ def plot_metrics(metrics: dict) -> plt.Figure:
 
 
 def plot_predictions(predictions: dict, run_config: dict, date_range: list) -> plt.Figure:
-    figure, axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 12), sharex=True)
+    nrows: int = len(predictions)
+    figure, axes = plt.subplots(nrows=nrows, ncols=1, figsize=(10, 2 * nrows), sharex=True)
     for i, entry in enumerate(predictions.items()):
         axes[i].plot(date_range, predictions["ground_truth"], label='Ground Truth', color='black', linestyle='--')
         axes[i].plot(date_range, entry[1], label=entry[0])
