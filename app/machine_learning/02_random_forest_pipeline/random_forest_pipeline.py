@@ -6,7 +6,7 @@ from ual.influx.Influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
 
-from app.model_evaluation import *
+from app.helper import *
 
 load_dotenv()
 
