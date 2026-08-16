@@ -1,0 +1,19 @@
+ual_bucket: "ual-minute-calibration"
+ual_sensor: "ual-3"
+lubw_bucket: "lubw-minute"
+lubw_sensor: "DEBW015"
+start_time: "2025-06-16T00:00:00Z"
+stop_time: "2026-06-10T23:00:00Z"
+inputs:
+  - RAW_ADC_NO2_W
+  - RAW_ADC_NO2_A
+  - RAW_ADC_NO_W
+  - RAW_ADC_NO_A
+  - RAW_ADC_O3_W
+  - RAW_ADC_O3_A
+  - sht_temp
+  - sht_humid
+targets:
+  - NO2
+experiment_name: "Random Forest Model with Minute Data"
+run_name: "NO2-ual3-1"
