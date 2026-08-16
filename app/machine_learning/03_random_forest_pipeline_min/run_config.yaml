@@ -15,5 +15,5 @@ inputs:
   - sht_humid
 targets:
   - NO2
-experiment_name: "Random Forest Model with Minute Data"
+experiment_name: "Random Forest Model with different minute data"
 run_name: "NO2-ual3-1"
