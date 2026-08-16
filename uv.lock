@@ -3319,8 +3319,8 @@ wheels = [
 
 [[package]]
 name = "ual"
-version = "0.17.0"
-source = { git = "https://github.com/urban-air-lab/common#516bbd2a89af4aefd979468d5f0f294093cb23b0" }
+version = "0.18.0"
+source = { git = "https://github.com/urban-air-lab/common#347a47b973eb821a2b9d9cf3279d179064ca93af" }
 dependencies = [
     { name = "dotenv" },
     { name = "influxdb-client" },
