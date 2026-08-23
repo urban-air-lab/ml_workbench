@@ -102,17 +102,19 @@ def main():
     print(all_metrics)
 
     # push models, metrics and plots to mlflow
-    setup_mlflow(run_config)
-    model_signature: ModelSignature = infer_signature(inputs_train, targets_train)
-    with mlflow.start_run(run_name=run_config["run_name"]):
-        for name, regressor in regressors.items():
-            log_run(name, regressor, all_metrics[name], model_signature)
+    push_to_mlflow: bool = False
+    if push_to_mlflow:
+        setup_mlflow(run_config)
+        model_signature: ModelSignature = infer_signature(inputs_train, targets_train)
+        with mlflow.start_run(run_name=run_config["run_name"]):
+            for name, regressor in regressors.items():
+                log_run(name, regressor, all_metrics[name], model_signature)
 
-        mlflow.log_figure(plot_data(data_processor), artifact_file="train_data_overview.png")
-        mlflow.log_figure(plot_metrics(all_metrics), artifact_file="metrics_overview.png")
-        mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index),
-                          artifact_file="predictions_overview.png")
-        mlflow.log_dict(run_config, artifact_file="run_config.yaml")
+            mlflow.log_figure(plot_data(data_processor), artifact_file="train_data_overview.png")
+            mlflow.log_figure(plot_metrics(all_metrics), artifact_file="metrics_overview.png")
+            mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index),
+                              artifact_file="predictions_overview.png")
+            mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 
 if __name__ == "__main__":
