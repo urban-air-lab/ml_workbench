@@ -84,8 +84,7 @@ def main():
                                                                               test_size=0.2,
                                                                               shuffle=True)
 
-    # shuffle=True returns the test rows in random order, sort them back by time
-    # so the prediction plot is drawn along a monotonic time axis
+    # shuffle=True returns the test rows in random order
     inputs_test = inputs_test.sort_index()
     targets_test = targets_test.sort_index()
 
