@@ -13,6 +13,10 @@ from app.helper import *
 
 load_dotenv()
 
+# aktuelle inputs
+# range 120min
+# shuffle
+# saqc
 
 def main():
     # load config
@@ -78,7 +82,12 @@ def main():
     inputs_train, inputs_test, targets_train, targets_test = train_test_split(inputs,
                                                                               targets,
                                                                               test_size=0.2,
-                                                                              shuffle=False)
+                                                                              shuffle=True)
+
+    # shuffle=True returns the test rows in random order, sort them back by time
+    # so the prediction plot is drawn along a monotonic time axis
+    inputs_test = inputs_test.sort_index()
+    targets_test = targets_test.sort_index()
 
     # choose models
     regressors: dict = {"RandomForestRegressor": RandomForestRegressor()}
@@ -89,6 +98,8 @@ def main():
     for name, regressor in regressors.items():
         all_predictions[name] = train_and_predict(regressor, inputs_train, targets_train, inputs_test)
         all_metrics[name] = evaluate(targets_test, all_predictions[name], inputs_test)
+
+    print(all_metrics)
 
     # push models, metrics and plots to mlflow
     setup_mlflow(run_config)
