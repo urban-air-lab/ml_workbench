@@ -97,7 +97,7 @@ def main():
     for name, regressor in regressors.items():
         all_predictions[name] = train_and_predict(regressor, inputs_train, targets_train, inputs_test)
         all_metrics[name] = evaluate(targets_test, all_predictions[name], inputs_test)
-    print(all_metrics)
+
 
     low = np.quantile(targets_test, 0.10)
     high = np.quantile(targets_test, 0.90)
@@ -110,19 +110,21 @@ def main():
     peak_mask = targets_test_values >= high
     low_mask = targets_test_values <= low
 
+    print("Overall:", all_metrics["RandomForestRegressor"])
+
     print(
         "Low MAE:",
-        mean_absolute_error(targets_test_values[low_mask], pred[low_mask])
+        calculate_evaluations(targets_test_values[low_mask], pred[low_mask])
     )
 
     print(
         "Middle MAE:",
-        mean_absolute_error(targets_test_values[middle_mask], pred[middle_mask])
+        calculate_evaluations(targets_test_values[middle_mask], pred[middle_mask])
     )
 
     print(
         "Peak MAE:",
-        mean_absolute_error(targets_test_values[peak_mask], pred[peak_mask])
+        calculate_evaluations(targets_test_values[peak_mask], pred[peak_mask])
     )
 
 

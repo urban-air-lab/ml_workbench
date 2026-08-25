@@ -118,10 +118,14 @@ def calculate_evaluation(dataframe: pd.DataFrame) -> dict[str, float]:
     if not {"True", "Predictions"}.issubset(dataframe.columns):
         raise ValueError("DataFrame must contain 'True' and 'Predictions' columns.")
 
+    return calculate_evaluations(dataframe["True"], dataframe["Predictions"])
+
+
+def calculate_evaluations(truth: pd.DataFrame, prediction: pd.DataFrame) -> dict[str, float]:
     return {
-        "MAE": round(mean_absolute_error(dataframe["True"], dataframe["Predictions"]), 2),
-        "MSE": round(mean_squared_error(dataframe["True"], dataframe["Predictions"]), 2),
-        "RMSE": round(root_mean_squared_error(dataframe["True"], dataframe["Predictions"]), 2),
-        "MAPE": round((mean_absolute_percentage_error(dataframe["True"], dataframe["Predictions"])) * 100, 2),
-        "R-squared": round(r2_score(dataframe["True"], dataframe["Predictions"]), 2)
+        "MAE": round(mean_absolute_error(truth, prediction), 2),
+        "MSE": round(mean_squared_error(truth, prediction), 2),
+        "RMSE": round(root_mean_squared_error(truth, prediction), 2),
+        "MAPE": round((mean_absolute_percentage_error(truth, prediction)) * 100, 2),
+        "R-squared": round(r2_score(truth, prediction), 2)
     }
