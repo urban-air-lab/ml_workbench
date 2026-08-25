@@ -111,22 +111,9 @@ def main():
     low_mask = targets_test_values <= low
 
     print("Overall:", all_metrics["RandomForestRegressor"])
-
-    print(
-        "Low MAE:",
-        calculate_evaluations(targets_test_values[low_mask], pred[low_mask])
-    )
-
-    print(
-        "Middle MAE:",
-        calculate_evaluations(targets_test_values[middle_mask], pred[middle_mask])
-    )
-
-    print(
-        "Peak MAE:",
-        calculate_evaluations(targets_test_values[peak_mask], pred[peak_mask])
-    )
-
+    print("Low MAE:",calculate_evaluations(targets_test_values[low_mask], pred[low_mask]))
+    print("Middle MAE:",calculate_evaluations(targets_test_values[middle_mask], pred[middle_mask]))
+    print("Peak MAE:",calculate_evaluations(targets_test_values[peak_mask], pred[peak_mask]))
 
     # push models, metrics and plots to mlflow
     push_to_mlflow: bool = False
