@@ -17,6 +17,21 @@ load_dotenv()
 # range 120min
 # shuffle
 # saqc
+# using timeseries
+# TODO: Next https://medium.com/kernel-x/fine-tuning-machine-learning-models-using-scikit-learn-9e274782ef05
+
+def add_timeseries_features(data: pd.DataFrame, columns: list[str], freq: str, steps: int = 1) -> pd.DataFrame:
+    """Widen the given columns into a small time series: value at t plus t-1..t-steps and t+1..t+steps."""
+    offset = pd.tseries.frequencies.to_offset(freq)
+    features: dict[str, np.ndarray] = dict()
+    for column in columns:
+        series: pd.Series = data[column]
+        for step in range(1, steps + 1):
+            # look the neighbours up by timestamp so gaps stay NaN instead of silently shifting rows
+            features[f"{column}_t-{step}"] = series.reindex(data.index - step * offset).to_numpy()
+            features[f"{column}_t+{step}"] = series.reindex(data.index + step * offset).to_numpy()
+    return pd.concat([data, pd.DataFrame(features, index=data.index)], axis=1)
+
 
 def main():
     # load config
@@ -46,14 +61,13 @@ def main():
     target_data: pd.DataFrame = connection.query_dataframe(target_query)
 
     # set time span
-    input_data = input_data.groupby(pd.Grouper(freq="120Min")).aggregate(numpy.mean)
-    target_data = target_data.groupby(pd.Grouper(freq="120Min")).aggregate(numpy.mean)
+    time_span: str = "120Min"
+    input_data = input_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
+    target_data = target_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
 
     # clean and prepare data
     data_processor: DataProcessor = (DataProcessor(input_data, target_data)
                                      .remove_nan()
-                                     .remove_input_outliers()
-                                     .remove_target_outliers()
                                      .calculate_w_a_difference(['NO', 'NO2', 'O3'])
                                      .align_dataframes_by_time())
 
@@ -74,6 +88,10 @@ def main():
 
     clean_data = saqc.data.to_pandas().mask(saqc.flags.to_pandas() >= BAD)
 
+    # give the model the previous and the next measurement of each input alongside the current one
+    timeseries_columns: list[str] = [column for column in clean_data.columns if column != "NO2"]
+    clean_data = add_timeseries_features(clean_data, timeseries_columns, freq=time_span, steps=1)
+
     test = clean_data.dropna()
     targets = test["NO2"]
     inputs = test.drop("NO2", axis=1)
@@ -82,21 +100,22 @@ def main():
     inputs_train, inputs_test, targets_train, targets_test = train_test_split(inputs,
                                                                               targets,
                                                                               test_size=0.2,
-                                                                              shuffle=True)
+                                                                              random_state = 42,
+                                                                              shuffle=True) # returns values of all months in test data
 
     # shuffle=True returns the test rows in random order
     inputs_test = inputs_test.sort_index()
     targets_test = targets_test.sort_index()
 
     # choose models
-    regressors: dict = {"RandomForestRegressor": RandomForestRegressor()}
 
-    # train every regressor and evaluate it on the test set
+    regressor = RandomForestRegressor()
+
+    # train regressor and evaluate it on the test set
     all_predictions: dict = {"ground_truth": targets_test.values.flatten().tolist()}
     all_metrics: dict = dict()
-    for name, regressor in regressors.items():
-        all_predictions[name] = train_and_predict(regressor, inputs_train, targets_train, inputs_test)
-        all_metrics[name] = evaluate(targets_test, all_predictions[name], inputs_test)
+    all_predictions["RandomForestRegressor"] = train_and_predict(regressor, inputs_train, targets_train, inputs_test)
+    all_metrics["RandomForestRegressor"] = evaluate(targets_test, all_predictions["RandomForestRegressor"], inputs_test)
 
 
     low = np.quantile(targets_test, 0.10)
@@ -121,8 +140,7 @@ def main():
         setup_mlflow(run_config)
         model_signature: ModelSignature = infer_signature(inputs_train, targets_train)
         with mlflow.start_run(run_name=run_config["run_name"]):
-            for name, regressor in regressors.items():
-                log_run(name, regressor, all_metrics[name], model_signature)
+            log_run("RandomForestRegressor", regressor, all_metrics["RandomForestRegressor"], model_signature)
 
             mlflow.log_figure(plot_data(data_processor), artifact_file="train_data_overview.png")
             mlflow.log_figure(plot_metrics(all_metrics), artifact_file="metrics_overview.png")
