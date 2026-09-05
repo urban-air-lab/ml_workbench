@@ -3,7 +3,7 @@ import numpy
 from dotenv import load_dotenv
 from saqc import SaQC, BAD
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.model_selection import train_test_split, KFold
+from sklearn.model_selection import train_test_split, KFold, GridSearchCV
 from ual.get_config import get_config
 from ual.influx.Influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
@@ -107,14 +107,27 @@ def main():
     inputs_test = inputs_test.sort_index()
     targets_test = targets_test.sort_index()
 
-    # choose models
 
-    regressor = RandomForestRegressor()
+    param_grid = {
+        'n_estimators': [100, 200],
+        'max_depth': [None, 10, 20],
+        'min_samples_split': [2, 5],
+        'min_samples_leaf': [1, 2],
+        'bootstrap': [True, False]
+    }
 
-    # train regressor and evaluate it on the test set
+    grid_search = GridSearchCV(RandomForestRegressor(), param_grid=param_grid, cv=5, refit=True)
+    grid_search.fit(inputs_train, targets_train)
+
+    print("Best params:", grid_search.best_params_)
+
+    # refit=True already fitted the best estimator on the whole training set
+    regressor = grid_search.best_estimator_
+
+    # evaluate the tuned regressor on the test set
     all_predictions: dict = {"ground_truth": targets_test.values.flatten().tolist()}
     all_metrics: dict = dict()
-    all_predictions["RandomForestRegressor"] = train_and_predict(regressor, inputs_train, targets_train, inputs_test)
+    all_predictions["RandomForestRegressor"] = regressor.predict(inputs_test).flatten().tolist()
     all_metrics["RandomForestRegressor"] = evaluate(targets_test, all_predictions["RandomForestRegressor"], inputs_test)
 
 
