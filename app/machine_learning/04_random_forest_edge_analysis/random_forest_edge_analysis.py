@@ -116,7 +116,7 @@ def main():
         'bootstrap': [True, False]
     }
 
-    grid_search = GridSearchCV(RandomForestRegressor(), param_grid=param_grid, cv=5, refit=True)
+    grid_search = GridSearchCV(RandomForestRegressor(), param_grid=param_grid, cv=5, refit=True, scoring="neg_mean_absolute_error" )
     grid_search.fit(inputs_train, targets_train)
 
     print("Best params:", grid_search.best_params_)
