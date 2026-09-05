@@ -2,12 +2,13 @@ import mlflow
 import numpy
 from dotenv import load_dotenv
 from saqc import SaQC, BAD
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.model_selection import train_test_split, KFold, GridSearchCV
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split, GridSearchCV
 from ual.get_config import get_config
 from ual.influx.Influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
+from multiprocessing import Pool, cpu_count
 
 from app.helper import *
 
@@ -108,6 +109,10 @@ def main():
     targets_test = targets_test.sort_index()
 
 
+    cpus = cpu_count()
+    use_cpus = cpus - 1
+    print(f"Using {use_cpus} CPUs from {cpus} for training")
+
     param_grid = {
         'n_estimators': [100, 200],
         'max_depth': [None, 10, 20],
@@ -115,10 +120,8 @@ def main():
         'min_samples_leaf': [1, 2],
         'bootstrap': [True, False]
     }
-
-    grid_search = GridSearchCV(RandomForestRegressor(), param_grid=param_grid, cv=5, refit=True, scoring="neg_mean_absolute_error" )
+    grid_search = GridSearchCV(RandomForestRegressor(), param_grid=param_grid, cv=5, refit=True, scoring="neg_mean_absolute_error", n_jobs=use_cpus)
     grid_search.fit(inputs_train, targets_train)
-
     print("Best params:", grid_search.best_params_)
 
     # refit=True already fitted the best estimator on the whole training set
