@@ -3,7 +3,7 @@ import numpy
 from dotenv import load_dotenv
 from saqc import SaQC, BAD
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import GridSearchCV, GroupKFold, GroupShuffleSplit, GroupShuffleSplit
 from ual.get_config import get_config
 from ual.influx.Influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
@@ -16,10 +16,12 @@ load_dotenv()
 
 # aktuelle inputs
 # range 120min
-# shuffle
+# split by week groups
 # saqc
 # using timeseries
-# TODO: Next https://medium.com/kernel-x/fine-tuning-machine-learning-models-using-scikit-learn-9e274782ef05
+# hyperparameter estimation
+
+# TODO: low MAPE -> niedrige werte schuld?
 
 def add_timeseries_features(data: pd.DataFrame, columns: list[str], freq: str, steps: int = 1) -> pd.DataFrame:
     """Widen the given columns into a small time series: value at t plus t-1..t-steps and t+1..t+steps."""
@@ -97,14 +99,18 @@ def main():
     targets = test["NO2"]
     inputs = test.drop("NO2", axis=1)
 
-    # create train and test set
-    inputs_train, inputs_test, targets_train, targets_test = train_test_split(inputs,
-                                                                              targets,
-                                                                              test_size=0.2,
-                                                                              random_state = 42,
-                                                                              shuffle=True) # returns values of all months in test data
+    # split whole weeks instead of single rows: a shuffled row split would tear the t-1/t+1 windows apart
+    # and leak near identical neighbours from train into test. Sampling weeks still puts all months in the test set.
+    groups = test.index.to_period("W")
 
-    # shuffle=True returns the test rows in random order
+    splitter = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
+    train_index, test_index = next(splitter.split(inputs, targets, groups=groups))
+
+    inputs_train, inputs_test = inputs.iloc[train_index], inputs.iloc[test_index]
+    targets_train, targets_test = targets.iloc[train_index], targets.iloc[test_index]
+    groups_train = groups[train_index]
+
+    # the weeks are drawn in random order
     inputs_test = inputs_test.sort_index()
     targets_test = targets_test.sort_index()
 
@@ -114,14 +120,17 @@ def main():
     print(f"Using {use_cpus} CPUs from {cpus} for training")
 
     param_grid = {
-        'n_estimators': [100, 200],
-        'max_depth': [None, 10, 20],
+        'n_estimators': [50, 100, 200, 300],
+        'max_depth': [None, 10, 20, 30],
         'min_samples_split': [2, 5],
-        'min_samples_leaf': [1, 2],
+        'min_samples_leaf': [2, 5],
         'bootstrap': [True, False]
     }
-    grid_search = GridSearchCV(RandomForestRegressor(), param_grid=param_grid, cv=5, refit=True, scoring="neg_mean_absolute_error", n_jobs=use_cpus)
-    grid_search.fit(inputs_train, targets_train)
+    # GroupKFold builds the folds out of whole weeks as well, so the hyperparameters are not picked on a leaky score
+    grid_search = GridSearchCV(RandomForestRegressor(random_state=42), param_grid=param_grid,
+                               cv=GroupKFold(n_splits=5), refit=True, scoring="neg_mean_absolute_error",
+                               n_jobs=use_cpus)
+    grid_search.fit(inputs_train, targets_train, groups=groups_train)
     print("Best params:", grid_search.best_params_)
 
     # refit=True already fitted the best estimator on the whole training set
