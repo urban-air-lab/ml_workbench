@@ -168,7 +168,6 @@ def main():
             log_run("RandomForestRegressor", regressor, all_metrics["RandomForestRegressor"], model_signature)
 
             mlflow.log_figure(plot_data(data_processor), artifact_file="train_data_overview.png")
-            mlflow.log_figure(plot_metrics(all_metrics), artifact_file="metrics_overview.png")
             mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index),
                               artifact_file="predictions_overview.png")
             mlflow.log_dict(run_config, artifact_file="run_config.yaml")
