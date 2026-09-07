@@ -93,7 +93,7 @@ def plot_metrics(metrics: dict, figsize: tuple = (7, 4)) -> plt.Figure:
 
 def plot_predictions(predictions: dict, run_config: dict, date_range: list) -> plt.Figure:
     nrows: int = len(predictions)
-    figure, axes = plt.subplots(nrows=nrows, ncols=1, figsize=(10, 2 * nrows), sharex=True)
+    figure, axes = plt.subplots(nrows=nrows, ncols=1, figsize=(20, 4 * nrows), sharex=True)
     for i, entry in enumerate(predictions.items()):
         axes[i].plot(date_range, predictions["ground_truth"], label='Ground Truth', color='black', linestyle='--')
         axes[i].plot(date_range, entry[1], label=entry[0])
