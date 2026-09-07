@@ -1,14 +1,15 @@
 import mlflow
 import numpy
 from dotenv import load_dotenv
+from pandas import DataFrame
 from saqc import SaQC, BAD
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import GridSearchCV, GroupKFold, GroupShuffleSplit, GroupShuffleSplit
+from sklearn.model_selection import GridSearchCV, GroupKFold, GroupShuffleSplit
 from ual.get_config import get_config
 from ual.influx.Influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
-from multiprocessing import Pool, cpu_count
+from multiprocessing import cpu_count
 
 from app.helper import *
 
@@ -63,10 +64,8 @@ def main():
         .build()
     target_data: pd.DataFrame = connection.query_dataframe(target_query)
 
-    # set time span
-    time_span: str = "120Min"
-    input_data = input_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
-    target_data = target_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
+
+    input_data, target_data, time_span = set_timespan(input_data, target_data, "120Min")
 
     # clean and prepare data
     data_processor: DataProcessor = (DataProcessor(input_data, target_data)
@@ -171,6 +170,12 @@ def main():
             mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index),
                               artifact_file="predictions_overview.png")
             mlflow.log_dict(run_config, artifact_file="run_config.yaml")
+
+
+def set_timespan(input_data: DataFrame, target_data: DataFrame, time_span: str) -> tuple[DataFrame, DataFrame, str]:
+    input_data = input_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
+    target_data = target_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
+    return input_data, target_data, time_span
 
 
 if __name__ == "__main__":
