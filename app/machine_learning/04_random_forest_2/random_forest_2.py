@@ -40,6 +40,7 @@ def add_timeseries_features(data: pd.DataFrame, columns: list[str], freq: str, s
 def main():
     # load config
     run_config: dict = get_config("./run_config.yaml")
+    single_target = run_config["targets"][0]
 
     # load data from influx
     ual_source = SensorSource.from_strings(bucket=run_config["ual_bucket"], sensor=run_config["ual_sensor"])
@@ -91,12 +92,12 @@ def main():
     clean_data = saqc.data.to_pandas().mask(saqc.flags.to_pandas() >= BAD)
 
     # give the model the previous and the next measurement of each input alongside the current one
-    timeseries_columns: list[str] = [column for column in clean_data.columns if column != "NO2"]
+    timeseries_columns: list[str] = [column for column in clean_data.columns if column != single_target]
     clean_data = add_timeseries_features(clean_data, timeseries_columns, freq=time_span, steps=1)
 
     test = clean_data.dropna()
-    targets = test["NO2"]
-    inputs = test.drop("NO2", axis=1)
+    targets = test[single_target]
+    inputs = test.drop(single_target, axis=1)
 
     # split whole weeks instead of single rows: a shuffled row split would tear the t-1/t+1 windows apart
     # and leak near identical neighbours from train into test. Sampling weeks still puts all months in the test set.
@@ -159,7 +160,7 @@ def main():
     print("Peak MAE:",calculate_evaluations(targets_test_values[peak_mask], pred[peak_mask]))
 
     # push models, metrics and plots to mlflow
-    push_to_mlflow: bool = False
+    push_to_mlflow: bool = True
     if push_to_mlflow:
         setup_mlflow(run_config)
         model_signature: ModelSignature = infer_signature(inputs_train, targets_train)
