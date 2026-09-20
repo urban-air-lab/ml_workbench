@@ -11,6 +11,7 @@ class CSVDataLoader:
             self.data = pd.read_csv(os_independent_path, sep=";")
         except FileNotFoundError as e:
             print(e)
+            raise FileNotFoundError(file_path)
         try:
             self.data.drop_duplicates(subset=["datetime"], inplace=True)
             self.data["datetime"] = pd.to_datetime(self.data["datetime"])
