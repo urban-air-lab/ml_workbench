@@ -86,7 +86,7 @@ def main():
             .flagRange("RAW_ADC_NO2_A", min=217, max=246)
             .flagRange("RAW_ADC_NO_W", min=224, max=650)
             .flagRange("RAW_ADC_NO_A", min=244, max=527)
-            .flagRange("PM2.5", min=0, max=10000)
+            .flagRange("NO2", min=0, max=10000)
             )
 
     clean_data = saqc.data.to_pandas().mask(saqc.flags.to_pandas() >= BAD)
@@ -160,7 +160,7 @@ def main():
     print("Peak MAE:",calculate_evaluations(targets_test_values[peak_mask], pred[peak_mask]))
 
     # push models, metrics and plots to mlflow
-    push_to_mlflow: bool = True
+    push_to_mlflow: bool = False
     if push_to_mlflow:
         setup_mlflow(run_config)
         model_signature: ModelSignature = infer_signature(inputs_train, targets_train)
