@@ -57,9 +57,8 @@ def main():
     model: BaseEstimator = mlflow.sklearn.load_model(f"models:/{model_name}/{model_version}")
 
     prediction: np.ndarray = model.predict(data_processor.get_inputs())
-    all_predictions: dict = dict()
-    all_predictions["ground_truth"] = data_processor.get_targets().values.flatten().tolist()
-    all_predictions["backtesting"] = prediction.tolist()
+    all_predictions: dict = {"ground_truth": data_processor.get_targets().values.flatten().tolist(),
+                             "backtesting": prediction.tolist()}
 
     with mlflow.start_run(run_name=run_config["run_name"]):
         mlflow.log_figure(plot_predictions(all_predictions, run_config, data_processor.get_targets().index),

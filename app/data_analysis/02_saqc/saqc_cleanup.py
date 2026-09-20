@@ -1,6 +1,5 @@
-import numpy
 from dotenv import load_dotenv
-from saqc import SaQC, BAD
+from saqc import BAD, SaQC
 from ual.get_config import get_config
 from ual.influx.influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
@@ -75,8 +74,9 @@ def main():
 
     # saqc replaces values with nan, drop to get real result
     test = clean_data.dropna()
-    targets = test["NO2"]
-    inputs = test.drop("NO2", axis=1)
+    #targets = test["NO2"]
+    #iputs = test.drop("NO2", axis=1)
+    print(test)
     print("finish")
 
 

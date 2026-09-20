@@ -1,15 +1,17 @@
+from multiprocessing import cpu_count
+
 import mlflow
 import numpy
 from dotenv import load_dotenv
+from mlflow.models import infer_signature
 from pandas import DataFrame
-from saqc import SaQC, BAD
+from saqc import BAD, SaQC
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import GridSearchCV, GroupKFold, GroupShuffleSplit
 from ual.get_config import get_config
 from ual.influx.influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
-from multiprocessing import cpu_count
 
 from app.helper import *
 
@@ -27,7 +29,7 @@ load_dotenv()
 def add_timeseries_features(data: pd.DataFrame, columns: list[str], freq: str, steps: int = 1) -> pd.DataFrame:
     """Widen the given columns into a small time series: value at t plus t-1..t-steps and t+1..t+steps."""
     offset = pd.tseries.frequencies.to_offset(freq)
-    features: dict[str, np.ndarray] = dict()
+    features: dict[str, np.ndarray] = {}
     for column in columns:
         series: pd.Series = data[column]
         for step in range(1, steps + 1):
@@ -138,7 +140,7 @@ def main():
 
     # evaluate the tuned regressor on the test set
     all_predictions: dict = {"ground_truth": targets_test.values.flatten().tolist()}
-    all_metrics: dict = dict()
+    all_metrics: dict = {}
     all_predictions["RandomForestRegressor"] = regressor.predict(inputs_test).flatten().tolist()
     all_metrics["RandomForestRegressor"] = evaluate(targets_test, all_predictions["RandomForestRegressor"], inputs_test)
 

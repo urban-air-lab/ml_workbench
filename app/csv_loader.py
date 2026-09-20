@@ -9,13 +9,13 @@ class CSVDataLoader:
         os_independent_path = _get_caller_directory(2) / Path(file_path)
         try:
             self.data = pd.read_csv(os_independent_path, sep=";")
-        except Exception:
-            raise FileNotFoundError
+        except FileNotFoundError as e:
+            print(e)
         try:
             self.data.drop_duplicates(subset=['datetime'], inplace=True)
             self.data['datetime'] = pd.to_datetime(self.data['datetime'])
             self.data.set_index('datetime', inplace=True, drop=True)
-        except Exception as e:
+        except OSError as e:
             print("No Datetime Column in Dataframe?: ", e)
         self._drop_999_values()
 

@@ -62,7 +62,7 @@ def main():
 
     # train every regressor and evaluate it on the test set
     all_predictions: dict = {"ground_truth": targets_test.values.flatten().tolist()}
-    all_metrics: dict = dict()
+    all_metrics: dict = {}
     for name, regressor in regressors.items():
         all_predictions[name] = train_and_predict(regressor, inputs_train, targets_train, inputs_test)
         all_metrics[name] = evaluate(targets_test, all_predictions[name], inputs_test)

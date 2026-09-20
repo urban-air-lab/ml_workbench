@@ -1,14 +1,18 @@
+import os
+
+import mlflow
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 import seaborn as sns
-import mlflow
-from mlflow.models.signature import ModelSignature, infer_signature
-import os
-from sklearn.metrics import (mean_absolute_error,
-                             mean_absolute_percentage_error,
-                             mean_squared_error, r2_score,
-                             root_mean_squared_error)
+from matplotlib import pyplot as plt
+from mlflow.models.signature import ModelSignature
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    mean_squared_error,
+    r2_score,
+    root_mean_squared_error,
+)
 from ual.data_processor import DataProcessor
 
 

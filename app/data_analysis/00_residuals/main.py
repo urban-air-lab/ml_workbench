@@ -1,6 +1,5 @@
 import os
 
-import mlflow
 import pandas as pd
 from dotenv import load_dotenv
 from matplotlib import pyplot as plt
@@ -9,7 +8,6 @@ from ual.get_config import get_config
 from ual.influx.influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
-import seaborn as sns
 
 load_dotenv()
 

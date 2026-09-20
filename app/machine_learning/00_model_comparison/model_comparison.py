@@ -1,5 +1,6 @@
 import xgboost as xgb
 from dotenv import load_dotenv
+from mlflow.models import infer_signature
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
@@ -62,7 +63,7 @@ def main():
 
     # train every regressor and evaluate it on the test set
     all_predictions: dict = {"ground_truth": targets_test.values.flatten().tolist()}
-    all_metrics: dict = dict()
+    all_metrics: dict = {}
     for name, regressor in regressors.items():
         all_predictions[name] = train_and_predict(regressor, inputs_train, targets_train, inputs_test)
         all_metrics[name] = evaluate(targets_test, all_predictions[name], inputs_test)

@@ -2,15 +2,15 @@ import os
 
 import mlflow
 import pandas as pd
+import seaborn as sns
 from dotenv import load_dotenv
 from matplotlib import pyplot as plt
+from saqc import BAD, SaQC
 from ual.data_processor import DataProcessor
 from ual.get_config import get_config
 from ual.influx.influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
-import seaborn as sns
-from saqc import SaQC, BAD
 
 load_dotenv()
 
