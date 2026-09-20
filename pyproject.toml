@@ -3,7 +3,7 @@ name = "ml-workbench"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
     "dotenv>=0.9.9",
     "influxdb-client>=1.50.0",
@@ -21,9 +21,9 @@ dependencies = [
     "scikit-learn>=1.8.0",
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
-    "ual",
     "xgboost>=3.2.0",
+    "ual>=0.19.0"
 ]
 
 [tool.uv.sources]
-ual = { git = "https://github.com/urban-air-lab/common" }
+ual = { git = "https://github.com/urban-air-lab/common", tag = "0.19.0" }
