@@ -19,63 +19,90 @@ load_dotenv()
 def main():
     run_config: dict = get_config("./run_config.yaml")
 
-    ual_source = SensorSource.from_strings(bucket=run_config["ual_bucket"], sensor=run_config["ual_sensor"])
-    lubw_source = SensorSource.from_strings(bucket=run_config["lubw_bucket"], sensor=run_config["lubw_sensor"])
+    ual_source = SensorSource.from_strings(
+        bucket=run_config["ual_bucket"], sensor=run_config["ual_sensor"]
+    )
+    lubw_source = SensorSource.from_strings(
+        bucket=run_config["lubw_bucket"], sensor=run_config["lubw_sensor"]
+    )
 
-    connection: InfluxDBConnector = InfluxDBConnector(os.getenv("INFLUX_URL"), os.getenv("INFLUX_TOKEN"),
-                                                      os.getenv("INFLUX_ORG"))
+    connection: InfluxDBConnector = InfluxDBConnector(
+        os.getenv("INFLUX_URL"), os.getenv("INFLUX_TOKEN"), os.getenv("INFLUX_ORG")
+    )
 
-    inputs_query: str = InfluxQueryBuilder() \
-        .set_bucket(ual_source.get_bucket()) \
-        .set_range(run_config["start_time"], run_config["stop_time"]) \
-        .set_topic(ual_source.get_sensor()) \
-        .set_fields(run_config["inputs"]) \
+    inputs_query: str = (
+        InfluxQueryBuilder()
+        .set_bucket(ual_source.get_bucket())
+        .set_range(run_config["start_time"], run_config["stop_time"])
+        .set_topic(ual_source.get_sensor())
+        .set_fields(run_config["inputs"])
         .build()
+    )
     input_data: pd.DataFrame = connection.query_dataframe(inputs_query)
 
-    target_query: str = InfluxQueryBuilder() \
-        .set_bucket(lubw_source.get_bucket()) \
-        .set_range(run_config["start_time"], run_config["stop_time"]) \
-        .set_topic(lubw_source.get_sensor()) \
-        .set_fields(run_config["targets"]) \
+    target_query: str = (
+        InfluxQueryBuilder()
+        .set_bucket(lubw_source.get_bucket())
+        .set_range(run_config["start_time"], run_config["stop_time"])
+        .set_topic(lubw_source.get_sensor())
+        .set_fields(run_config["targets"])
         .build()
+    )
     target_data: pd.DataFrame = connection.query_dataframe(target_query)
 
-    data_processor: DataProcessor = (DataProcessor(input_data, target_data)
-                                     .to_hourly()
-                                     .remove_nan()
-                                     .calculate_w_a_difference(['NO', 'NO2', 'O3'])
-                                     .align_dataframes_by_time())
+    data_processor: DataProcessor = (
+        DataProcessor(input_data, target_data)
+        .to_hourly()
+        .remove_nan()
+        .calculate_w_a_difference(["NO", "NO2", "O3"])
+        .align_dataframes_by_time()
+    )
 
-    os.environ['MLFLOW_TRACKING_USERNAME'] = os.getenv("MLFLOW_USERNAME")
-    os.environ['MLFLOW_TRACKING_PASSWORD'] = os.getenv("MLFLOW_PASSWORD")
+    os.environ["MLFLOW_TRACKING_USERNAME"] = os.getenv("MLFLOW_USERNAME")
+    os.environ["MLFLOW_TRACKING_PASSWORD"] = os.getenv("MLFLOW_PASSWORD")
     mlflow.set_tracking_uri(os.getenv("MLFLOW_URL"))
     mlflow.set_experiment(run_config["experiment_name"])
 
     model_name: str = "NO2_ual-3"
     model_version: str = "1"
-    model: BaseEstimator = mlflow.sklearn.load_model(f"models:/{model_name}/{model_version}")
+    model: BaseEstimator = mlflow.sklearn.load_model(
+        f"models:/{model_name}/{model_version}"
+    )
 
     prediction: np.ndarray = model.predict(data_processor.get_inputs())
-    all_predictions: dict = {"ground_truth": data_processor.get_targets().values.flatten().tolist(),
-                             "backtesting": prediction.tolist()}
+    all_predictions: dict = {
+        "ground_truth": data_processor.get_targets().values.flatten().tolist(),
+        "backtesting": prediction.tolist(),
+    }
 
     with mlflow.start_run(run_name=run_config["run_name"]):
-        mlflow.log_figure(plot_predictions(all_predictions, run_config, data_processor.get_targets().index),
-                          artifact_file="predictions_overview.png")
+        mlflow.log_figure(
+            plot_predictions(
+                all_predictions, run_config, data_processor.get_targets().index
+            ),
+            artifact_file="predictions_overview.png",
+        )
         mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 
-def plot_predictions(predictions: dict, run_config: dict, date_range: str) -> plt.Figure:
+def plot_predictions(
+    predictions: dict, run_config: dict, date_range: str
+) -> plt.Figure:
     figure, axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 12), sharex=True)
     for i, entry in enumerate(predictions.items()):
-        axes[i].plot(date_range, predictions["ground_truth"], label='Ground Truth', color='black', linestyle='--')
+        axes[i].plot(
+            date_range,
+            predictions["ground_truth"],
+            label="Ground Truth",
+            color="black",
+            linestyle="--",
+        )
         axes[i].plot(date_range, entry[1], label=entry[0])
         axes[i].set_title(entry[0])
-        axes[i].set_xlabel('time')
-        axes[i].set_ylabel('ppm')
+        axes[i].set_xlabel("time")
+        axes[i].set_ylabel("ppm")
     sns.set_theme(style="whitegrid", context="talk")
-    figure.suptitle(f'Models Predictions {run_config["targets"]}', fontsize=16)
+    figure.suptitle(f"Models Predictions {run_config['targets']}", fontsize=16)
     plt.tight_layout()
     return figure
 

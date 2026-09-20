@@ -26,7 +26,10 @@ load_dotenv()
 
 # TODO: low MAPE -> niedrige werte schuld?
 
-def add_timeseries_features(data: pd.DataFrame, columns: list[str], freq: str, steps: int = 1) -> pd.DataFrame:
+
+def add_timeseries_features(
+    data: pd.DataFrame, columns: list[str], freq: str, steps: int = 1
+) -> pd.DataFrame:
     """Widen the given columns into a small time series: value at t plus t-1..t-steps and t+1..t+steps."""
     offset = pd.tseries.frequencies.to_offset(freq)
     features: dict[str, np.ndarray] = {}
@@ -34,8 +37,12 @@ def add_timeseries_features(data: pd.DataFrame, columns: list[str], freq: str, s
         series: pd.Series = data[column]
         for step in range(1, steps + 1):
             # look the neighbours up by timestamp so gaps stay NaN instead of silently shifting rows
-            features[f"{column}_t-{step}"] = series.reindex(data.index - step * offset).to_numpy()
-            features[f"{column}_t+{step}"] = series.reindex(data.index + step * offset).to_numpy()
+            features[f"{column}_t-{step}"] = series.reindex(
+                data.index - step * offset
+            ).to_numpy()
+            features[f"{column}_t+{step}"] = series.reindex(
+                data.index + step * offset
+            ).to_numpy()
     return pd.concat([data, pd.DataFrame(features, index=data.index)], axis=1)
 
 
@@ -45,57 +52,72 @@ def main():
     single_target = run_config["targets"][0]
 
     # load data from influx
-    ual_source = SensorSource.from_strings(bucket=run_config["ual_bucket"], sensor=run_config["ual_sensor"])
-    lubw_source = SensorSource.from_strings(bucket=run_config["lubw_bucket"], sensor=run_config["lubw_sensor"])
+    ual_source = SensorSource.from_strings(
+        bucket=run_config["ual_bucket"], sensor=run_config["ual_sensor"]
+    )
+    lubw_source = SensorSource.from_strings(
+        bucket=run_config["lubw_bucket"], sensor=run_config["lubw_sensor"]
+    )
 
-    connection: InfluxDBConnector = InfluxDBConnector(os.getenv("INFLUX_URL"), os.getenv("INFLUX_TOKEN"),
-                                                      os.getenv("INFLUX_ORG"))
+    connection: InfluxDBConnector = InfluxDBConnector(
+        os.getenv("INFLUX_URL"), os.getenv("INFLUX_TOKEN"), os.getenv("INFLUX_ORG")
+    )
 
-    inputs_query: str = InfluxQueryBuilder() \
-        .set_bucket(ual_source.get_bucket()) \
-        .set_range(run_config["start_time"], run_config["stop_time"]) \
-        .set_topic(ual_source.get_sensor()) \
-        .set_fields(run_config["inputs"]) \
+    inputs_query: str = (
+        InfluxQueryBuilder()
+        .set_bucket(ual_source.get_bucket())
+        .set_range(run_config["start_time"], run_config["stop_time"])
+        .set_topic(ual_source.get_sensor())
+        .set_fields(run_config["inputs"])
         .build()
+    )
     input_data: pd.DataFrame = connection.query_dataframe(inputs_query)
 
-    target_query: str = InfluxQueryBuilder() \
-        .set_bucket(lubw_source.get_bucket()) \
-        .set_range(run_config["start_time"], run_config["stop_time"]) \
-        .set_topic(lubw_source.get_sensor()) \
-        .set_fields(run_config["targets"]) \
+    target_query: str = (
+        InfluxQueryBuilder()
+        .set_bucket(lubw_source.get_bucket())
+        .set_range(run_config["start_time"], run_config["stop_time"])
+        .set_topic(lubw_source.get_sensor())
+        .set_fields(run_config["targets"])
         .build()
+    )
     target_data: pd.DataFrame = connection.query_dataframe(target_query)
-
 
     input_data, target_data, time_span = set_timespan(input_data, target_data, "120Min")
 
     # clean and prepare data
-    data_processor: DataProcessor = (DataProcessor(input_data, target_data)
-                                     .remove_nan()
-                                     .calculate_w_a_difference(['NO', 'NO2', 'O3'])
-                                     .align_dataframes_by_time())
+    data_processor: DataProcessor = (
+        DataProcessor(input_data, target_data)
+        .remove_nan()
+        .calculate_w_a_difference(["NO", "NO2", "O3"])
+        .align_dataframes_by_time()
+    )
 
-
-    merged_data = pd.concat([data_processor.get_inputs(), data_processor.get_targets()], axis=1)
+    merged_data = pd.concat(
+        [data_processor.get_inputs(), data_processor.get_targets()], axis=1
+    )
 
     # Clean up data
     saqc = SaQC(merged_data)
-    saqc = (saqc
-            .flagRange("RAW_ADC_O3_W", min=193, max=245)
-            .flagRange("RAW_ADC_O3_A", min=218, max=247)
-            .flagRange("RAW_ADC_NO2_W", min=170, max=258)
-            .flagRange("RAW_ADC_NO2_A", min=217, max=246)
-            .flagRange("RAW_ADC_NO_W", min=224, max=650)
-            .flagRange("RAW_ADC_NO_A", min=244, max=527)
-            .flagRange("NO2", min=0, max=10000)
-            )
+    saqc = (
+        saqc.flagRange("RAW_ADC_O3_W", min=193, max=245)
+        .flagRange("RAW_ADC_O3_A", min=218, max=247)
+        .flagRange("RAW_ADC_NO2_W", min=170, max=258)
+        .flagRange("RAW_ADC_NO2_A", min=217, max=246)
+        .flagRange("RAW_ADC_NO_W", min=224, max=650)
+        .flagRange("RAW_ADC_NO_A", min=244, max=527)
+        .flagRange("NO2", min=0, max=10000)
+    )
 
     clean_data = saqc.data.to_pandas().mask(saqc.flags.to_pandas() >= BAD)
 
     # give the model the previous and the next measurement of each input alongside the current one
-    timeseries_columns: list[str] = [column for column in clean_data.columns if column != single_target]
-    clean_data = add_timeseries_features(clean_data, timeseries_columns, freq=time_span, steps=1)
+    timeseries_columns: list[str] = [
+        column for column in clean_data.columns if column != single_target
+    ]
+    clean_data = add_timeseries_features(
+        clean_data, timeseries_columns, freq=time_span, steps=1
+    )
 
     test = clean_data.dropna()
     targets = test[single_target]
@@ -116,22 +138,26 @@ def main():
     inputs_test = inputs_test.sort_index()
     targets_test = targets_test.sort_index()
 
-
     cpus = cpu_count()
     use_cpus = cpus - 1
     print(f"Using {use_cpus} CPUs from {cpus} for training")
 
     param_grid = {
-        'n_estimators': [50, 100, 200, 300],
-        'max_depth': [None, 10, 20, 30],
-        'min_samples_split': [2, 5],
-        'min_samples_leaf': [2, 5],
-        'bootstrap': [True, False]
+        "n_estimators": [50, 100, 200, 300],
+        "max_depth": [None, 10, 20, 30],
+        "min_samples_split": [2, 5],
+        "min_samples_leaf": [2, 5],
+        "bootstrap": [True, False],
     }
     # GroupKFold builds the folds out of whole weeks as well, so the hyperparameters are not picked on a leaky score
-    grid_search = GridSearchCV(RandomForestRegressor(random_state=42), param_grid=param_grid,
-                               cv=GroupKFold(n_splits=5), refit=True, scoring="neg_mean_absolute_error",
-                               n_jobs=use_cpus)
+    grid_search = GridSearchCV(
+        RandomForestRegressor(random_state=42),
+        param_grid=param_grid,
+        cv=GroupKFold(n_splits=5),
+        refit=True,
+        scoring="neg_mean_absolute_error",
+        n_jobs=use_cpus,
+    )
     grid_search.fit(inputs_train, targets_train, groups=groups_train)
     print("Best params:", grid_search.best_params_)
 
@@ -141,9 +167,12 @@ def main():
     # evaluate the tuned regressor on the test set
     all_predictions: dict = {"ground_truth": targets_test.values.flatten().tolist()}
     all_metrics: dict = {}
-    all_predictions["RandomForestRegressor"] = regressor.predict(inputs_test).flatten().tolist()
-    all_metrics["RandomForestRegressor"] = evaluate(targets_test, all_predictions["RandomForestRegressor"], inputs_test)
-
+    all_predictions["RandomForestRegressor"] = (
+        regressor.predict(inputs_test).flatten().tolist()
+    )
+    all_metrics["RandomForestRegressor"] = evaluate(
+        targets_test, all_predictions["RandomForestRegressor"], inputs_test
+    )
 
     low = np.quantile(targets_test, 0.10)
     high = np.quantile(targets_test, 0.90)
@@ -157,9 +186,17 @@ def main():
     low_mask = targets_test_values <= low
 
     print("Overall:", all_metrics["RandomForestRegressor"])
-    print("Low MAE:",calculate_evaluations(targets_test_values[low_mask], pred[low_mask]))
-    print("Middle MAE:",calculate_evaluations(targets_test_values[middle_mask], pred[middle_mask]))
-    print("Peak MAE:",calculate_evaluations(targets_test_values[peak_mask], pred[peak_mask]))
+    print(
+        "Low MAE:", calculate_evaluations(targets_test_values[low_mask], pred[low_mask])
+    )
+    print(
+        "Middle MAE:",
+        calculate_evaluations(targets_test_values[middle_mask], pred[middle_mask]),
+    )
+    print(
+        "Peak MAE:",
+        calculate_evaluations(targets_test_values[peak_mask], pred[peak_mask]),
+    )
 
     # push models, metrics and plots to mlflow
     push_to_mlflow: bool = False
@@ -167,15 +204,26 @@ def main():
         setup_mlflow(run_config)
         model_signature: ModelSignature = infer_signature(inputs_train, targets_train)
         with mlflow.start_run(run_name=run_config["run_name"]):
-            log_run("RandomForestRegressor", regressor, all_metrics["RandomForestRegressor"], model_signature)
+            log_run(
+                "RandomForestRegressor",
+                regressor,
+                all_metrics["RandomForestRegressor"],
+                model_signature,
+            )
 
-            mlflow.log_figure(plot_data(data_processor), artifact_file="train_data_overview.png")
-            mlflow.log_figure(plot_predictions(all_predictions, run_config, targets_test.index),
-                              artifact_file="predictions_overview.png")
+            mlflow.log_figure(
+                plot_data(data_processor), artifact_file="train_data_overview.png"
+            )
+            mlflow.log_figure(
+                plot_predictions(all_predictions, run_config, targets_test.index),
+                artifact_file="predictions_overview.png",
+            )
             mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
 
-def set_timespan(input_data: DataFrame, target_data: DataFrame, time_span: str) -> tuple[DataFrame, DataFrame, str]:
+def set_timespan(
+    input_data: DataFrame, target_data: DataFrame, time_span: str
+) -> tuple[DataFrame, DataFrame, str]:
     input_data = input_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
     target_data = target_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
     return input_data, target_data, time_span
