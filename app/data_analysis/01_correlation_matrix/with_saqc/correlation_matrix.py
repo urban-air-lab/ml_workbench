@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from matplotlib import pyplot as plt
 from ual.data_processor import DataProcessor
 from ual.get_config import get_config
-from ual.influx.Influx_db_connector import InfluxDBConnector
+from ual.influx.influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
 import seaborn as sns

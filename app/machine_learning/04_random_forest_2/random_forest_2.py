@@ -6,7 +6,7 @@ from saqc import SaQC, BAD
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import GridSearchCV, GroupKFold, GroupShuffleSplit
 from ual.get_config import get_config
-from ual.influx.Influx_db_connector import InfluxDBConnector
+from ual.influx.influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
 from multiprocessing import cpu_count
@@ -86,7 +86,7 @@ def main():
             .flagRange("RAW_ADC_NO2_A", min=217, max=246)
             .flagRange("RAW_ADC_NO_W", min=224, max=650)
             .flagRange("RAW_ADC_NO_A", min=244, max=527)
-            .flagRange("NO2", min=0, max=1800)
+            .flagRange("PM2.5", min=0, max=10000)
             )
 
     clean_data = saqc.data.to_pandas().mask(saqc.flags.to_pandas() >= BAD)
