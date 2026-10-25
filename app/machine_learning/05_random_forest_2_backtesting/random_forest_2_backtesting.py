@@ -149,7 +149,8 @@ def plot_predictions(
             color="black",
             linestyle="--",
         )
-        axes[i].plot(date_range, entry[1], label=entry[0])
+        if entry[0] != "ground_truth":
+            axes[i].plot(date_range, entry[1], label=entry[0])
         axes[i].set_title(entry[0])
         axes[i].set_xlabel("time")
         axes[i].set_ylabel("ppm")
