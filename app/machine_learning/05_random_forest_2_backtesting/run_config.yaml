@@ -17,3 +17,5 @@ targets:
   - NO2
 experiment_name: "Random Forest Models 2"
 run_name: "NO2-ual3-1"
+model_name: "NO2_ual-3_GEN_2"
+model_version: 1

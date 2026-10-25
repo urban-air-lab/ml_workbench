@@ -108,8 +108,8 @@ def main():
     mlflow.set_tracking_uri(os.getenv("MLFLOW_URL"))
     mlflow.set_experiment(run_config["experiment_name"])
 
-    model_name: str = "NO2_ual-3_GEN_2"
-    model_version: str = "1"
+    model_name: str = run_config["model_name"]
+    model_version: str = run_config["model_version"]
     model: BaseEstimator = mlflow.sklearn.load_model(
         f"models:/{model_name}/{model_version}"
     )
@@ -121,7 +121,7 @@ def main():
     }
 
     ml_flow_active: bool = False
-    if(ml_flow_active):
+    if ml_flow_active:
         with mlflow.start_run(run_name=run_config["run_name"]):
             mlflow.log_figure(
                 plot_predictions(
