@@ -60,10 +60,11 @@ def main():
 
     os.environ["MLFLOW_TRACKING_USERNAME"] = os.getenv("MLFLOW_USERNAME")
     os.environ["MLFLOW_TRACKING_PASSWORD"] = os.getenv("MLFLOW_PASSWORD")
+    os.environ["MLFLOW_ENABLE_PROXY_MULTIPART_DOWNLOAD"] = "false"
     mlflow.set_tracking_uri(os.getenv("MLFLOW_URL"))
     mlflow.set_experiment(run_config["experiment_name"])
 
-    model_name: str = "NO2_ual-3"
+    model_name: str = "NO2_ual-5"
     model_version: str = "1"
     model: BaseEstimator = mlflow.sklearn.load_model(
         f"models:/{model_name}/{model_version}"
