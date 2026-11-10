@@ -36,13 +36,16 @@ To install the dependencies run
 uv sync --locked
 ```
 
-To setup the project you need to install requirements.txt and create a database_config.yaml in database package, 
-database_config.yaml has to have following structure 
+Set the following environment variables in a .env file in project root
 
 ```
-url: [ip of InfluxDB instance]
-token: [auth token of InfluxDB instance]
-org: [organization of InfluxDB instance]
+MLFLOW_URL=
+MLFLOW_USERNAME=
+MLFLOW_PASSWORD=
+
+INFLUX_URL=
+INFLUX_TOKEN=
+INFLUX_ORG=
 ```
 
 ## Bump up version number
