@@ -83,22 +83,18 @@ def main():
     )
     target_data: pd.DataFrame = connection.query_dataframe(target_query)
 
-    input_data, target_data, time_span = set_timespan(input_data, target_data, "120Min")
-
     # clean and prepare data
+    time_span:str = "120Min"
     data_processor: DataProcessor = (
         DataProcessor(input_data, target_data)
+        .to_timespan("120Min")
         .remove_nan()
         .calculate_w_a_difference(["NO", "NO2", "O3"])
         .align_dataframes_by_time()
     )
 
-    merged_data = pd.concat(
-        [data_processor.get_inputs(), data_processor.get_targets()], axis=1
-    )
-
     # Clean up data
-    saqc = SaQC(merged_data)
+    saqc = SaQC(data_processor.get_dataframe())
     saqc = (
         saqc.flagRange("RAW_ADC_O3_W", min=193, max=245)
         .flagRange("RAW_ADC_O3_A", min=218, max=247)
@@ -111,6 +107,7 @@ def main():
 
     clean_data = saqc.data.to_pandas().mask(saqc.flags.to_pandas() >= BAD)
 
+    # TODO: in KLasse
     # give the model the previous and the next measurement of each input alongside the current one
     timeseries_columns: list[str] = [
         column for column in clean_data.columns if column != single_target
@@ -220,13 +217,6 @@ def main():
             )
             mlflow.log_dict(run_config, artifact_file="run_config.yaml")
 
-
-def set_timespan(
-    input_data: DataFrame, target_data: DataFrame, time_span: str
-) -> tuple[DataFrame, DataFrame, str]:
-    input_data = input_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
-    target_data = target_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
-    return input_data, target_data, time_span
 
 
 if __name__ == "__main__":
