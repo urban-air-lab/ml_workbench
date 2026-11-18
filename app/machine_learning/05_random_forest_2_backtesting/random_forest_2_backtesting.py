@@ -1,46 +1,19 @@
-from multiprocessing import cpu_count
-
 import mlflow
-import numpy
 from dotenv import load_dotenv
-from mlflow.models import infer_signature
-from pandas import DataFrame
-from saqc import BAD, SaQC
 from sklearn.base import BaseEstimator
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import GridSearchCV, GroupKFold, GroupShuffleSplit
 from ual.get_config import get_config
 from ual.influx.influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
+from ual.time_series_processor import TimeSeriesProcessor
 
 from app.helper import *
 
 load_dotenv()
 
-def add_timeseries_features(
-    data: pd.DataFrame, columns: list[str], freq: str, steps: int = 1
-) -> pd.DataFrame:
-    """Widen the given columns into a small time series: value at t plus t-1..t-steps and t+1..t+steps."""
-    offset = pd.tseries.frequencies.to_offset(freq)
-    features: dict[str, np.ndarray] = {}
-    for column in columns:
-        series: pd.Series = data[column]
-        for step in range(1, steps + 1):
-            # look the neighbours up by timestamp so gaps stay NaN instead of silently shifting rows
-            features[f"{column}_t-{step}"] = series.reindex(
-                data.index - step * offset
-            ).to_numpy()
-            features[f"{column}_t+{step}"] = series.reindex(
-                data.index + step * offset
-            ).to_numpy()
-    return pd.concat([data, pd.DataFrame(features, index=data.index)], axis=1)
-
-
 def main():
     # load config
     run_config: dict = get_config("./run_config.yaml")
-    single_target = run_config["targets"][0]
 
     # load data from influx
     ual_source = SensorSource.from_strings(
@@ -74,11 +47,11 @@ def main():
     )
     target_data: pd.DataFrame = connection.query_dataframe(target_query)
 
-    input_data, target_data, time_span = set_timespan(input_data, target_data, "120Min")
-
     # clean and prepare data
+    time_span = "120Min"
     data_processor: DataProcessor = (
         DataProcessor(input_data, target_data)
+        .to_timespan(time_span)
         .remove_nan()
         .remove_input_outliers()
         .remove_target_outliers()
@@ -86,21 +59,11 @@ def main():
         .align_dataframes_by_time()
     )
 
-    merged_data = pd.concat(
-        [data_processor.get_inputs(), data_processor.get_targets()], axis=1
-    )
-
     # give the model the previous and the next measurement of each input alongside the current one
-    timeseries_columns: list[str] = [
-        column for column in merged_data.columns if column != single_target
-    ]
-    timeseries_data = add_timeseries_features(
-        merged_data, timeseries_columns, freq=time_span, steps=1
-    )
-
-    timeseries_data = timeseries_data.dropna()
-    targets = timeseries_data[single_target]
-    inputs = timeseries_data.drop(single_target, axis=1)
+    time_series_processor: TimeSeriesProcessor = TimeSeriesProcessor(data_processor.get_inputs(), data_processor.get_targets())
+    time_series_processor.add_timeseries_feature(freq=time_span, steps=1)
+    inputs: pd.DataFrame = time_series_processor.get_inputs()
+    targets: pd.DataFrame = time_series_processor.get_targets()
 
     os.environ["MLFLOW_TRACKING_USERNAME"] = os.getenv("MLFLOW_USERNAME")
     os.environ["MLFLOW_TRACKING_PASSWORD"] = os.getenv("MLFLOW_PASSWORD")
@@ -158,14 +121,6 @@ def plot_predictions(
     figure.suptitle(f"Models Predictions {run_config['targets']}", fontsize=16)
     plt.tight_layout()
     return figure
-
-
-def set_timespan(
-    input_data: DataFrame, target_data: DataFrame, time_span: str
-) -> tuple[DataFrame, DataFrame, str]:
-    input_data = input_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
-    target_data = target_data.groupby(pd.Grouper(freq=time_span)).aggregate(numpy.mean)
-    return input_data, target_data, time_span
 
 
 if __name__ == "__main__":
