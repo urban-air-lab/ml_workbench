@@ -1395,7 +1395,7 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.8.0" },
     { name = "scipy", specifier = ">=1.18.1" },
     { name = "seaborn", specifier = ">=0.13.2" },
-    { name = "ual", git = "https://github.com/urban-air-lab/common?tag=0.21.0" },
+    { name = "ual", git = "https://github.com/urban-air-lab/common?tag=0.22.0" },
     { name = "xgboost", specifier = ">=3.2.0" },
 ]
 
@@ -2841,8 +2841,8 @@ wheels = [
 
 [[package]]
 name = "ual"
-version = "0.21.0"
-source = { git = "https://github.com/urban-air-lab/common?tag=0.21.0#b649d5b637c840396f2a2c068b4bb0ebaa620eb7" }
+version = "0.22.0"
+source = { git = "https://github.com/urban-air-lab/common?tag=0.22.0#09c346e84e413e5bd697b57dc98f248b9d413e91" }
 dependencies = [
     { name = "influxdb-client" },
     { name = "isort" },

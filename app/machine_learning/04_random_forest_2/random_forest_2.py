@@ -1,10 +1,10 @@
 from multiprocessing import cpu_count
 
 import mlflow
-import numpy
+import pandas as pd
 from dotenv import load_dotenv
 from mlflow.models import infer_signature
-from pandas import DataFrame
+from pandas import PeriodIndex
 from saqc import BAD, SaQC
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import GridSearchCV, GroupKFold, GroupShuffleSplit
@@ -12,44 +12,14 @@ from ual.get_config import get_config
 from ual.influx.influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
 from ual.influx.sensors import SensorSource
-
+from ual.time_series_processor import TimeSeriesProcessor
 from app.helper import *
 
 load_dotenv()
 
-# aktuelle inputs
-# range 120min
-# split by week groups
-# saqc
-# using timeseries
-# hyperparameter estimation
-
-# TODO: low MAPE -> niedrige werte schuld?
-
-
-def add_timeseries_features(
-    data: pd.DataFrame, columns: list[str], freq: str, steps: int = 1
-) -> pd.DataFrame:
-    """Widen the given columns into a small time series: value at t plus t-1..t-steps and t+1..t+steps."""
-    offset = pd.tseries.frequencies.to_offset(freq)
-    features: dict[str, np.ndarray] = {}
-    for column in columns:
-        series: pd.Series = data[column]
-        for step in range(1, steps + 1):
-            # look the neighbours up by timestamp so gaps stay NaN instead of silently shifting rows
-            features[f"{column}_t-{step}"] = series.reindex(
-                data.index - step * offset
-            ).to_numpy()
-            features[f"{column}_t+{step}"] = series.reindex(
-                data.index + step * offset
-            ).to_numpy()
-    return pd.concat([data, pd.DataFrame(features, index=data.index)], axis=1)
-
-
 def main():
     # load config
     run_config: dict = get_config("./run_config.yaml")
-    single_target = run_config["targets"][0]
 
     # load data from influx
     ual_source = SensorSource.from_strings(
@@ -87,7 +57,7 @@ def main():
     time_span:str = "120Min"
     data_processor: DataProcessor = (
         DataProcessor(input_data, target_data)
-        .to_timespan("120Min")
+        .to_timespan(time_span)
         .remove_nan()
         .calculate_w_a_difference(["NO", "NO2", "O3"])
         .align_dataframes_by_time()
@@ -105,24 +75,18 @@ def main():
         .flagRange("NO2", min=0, max=10000)
     )
 
-    clean_data = saqc.data.to_pandas().mask(saqc.flags.to_pandas() >= BAD)
+    clean_data: pd.DataFrame = saqc.data.to_pandas().mask(saqc.flags.to_pandas() >= BAD)
+    clean_data.dropna(inplace=True)
 
-    # TODO: in KLasse
-    # give the model the previous and the next measurement of each input alongside the current one
-    timeseries_columns: list[str] = [
-        column for column in clean_data.columns if column != single_target
-    ]
-    clean_data = add_timeseries_features(
-        clean_data, timeseries_columns, freq=time_span, steps=1
-    )
-
-    test = clean_data.dropna()
-    targets = test[single_target]
-    inputs = test.drop(single_target, axis=1)
+    # Create time series
+    time_series_processor: TimeSeriesProcessor = TimeSeriesProcessor(clean_data[data_processor.get_inputs().columns], clean_data[data_processor.get_targets().columns])
+    time_series_processor.add_timeseries_feature(freq=time_span, steps=1)
+    inputs: pd.DataFrame = time_series_processor.get_inputs()
+    targets: pd.DataFrame = time_series_processor.get_targets()
 
     # split whole weeks instead of single rows: a shuffled row split would tear the t-1/t+1 windows apart
     # and leak near identical neighbours from train into test. Sampling weeks still puts all months in the test set.
-    groups = test.index.to_period("W")
+    groups: PeriodIndex = targets.index.to_period("W")
 
     splitter = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
     train_index, test_index = next(splitter.split(inputs, targets, groups=groups))

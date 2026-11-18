@@ -26,4 +26,4 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-ual = { git = "https://github.com/urban-air-lab/common", tag = "0.21.0" }
+ual = { git = "https://github.com/urban-air-lab/common", tag = "0.22.0" }
