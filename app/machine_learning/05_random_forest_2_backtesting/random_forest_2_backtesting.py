@@ -11,6 +11,7 @@ from app.helper import *
 
 load_dotenv()
 
+
 def main():
     # load config
     run_config: dict = get_config("./run_config.yaml")
@@ -60,7 +61,9 @@ def main():
     )
 
     # give the model the previous and the next measurement of each input alongside the current one
-    time_series_processor: TimeSeriesProcessor = TimeSeriesProcessor(data_processor.get_inputs(), data_processor.get_targets())
+    time_series_processor: TimeSeriesProcessor = TimeSeriesProcessor(
+        data_processor.get_inputs(), data_processor.get_targets()
+    )
     time_series_processor.add_timeseries_feature(freq=time_span, steps=1)
     inputs: pd.DataFrame = time_series_processor.get_inputs()
     targets: pd.DataFrame = time_series_processor.get_targets()
@@ -87,21 +90,17 @@ def main():
     if ml_flow_active:
         with mlflow.start_run(run_name=run_config["run_name"]):
             mlflow.log_figure(
-                plot_predictions(
-                    all_predictions, run_config, targets.index
-                ),
+                plot_predictions(all_predictions, run_config, targets.index),
                 artifact_file="predictions_overview.png",
             )
             mlflow.log_dict(run_config, artifact_file="run_config.yaml")
     else:
-        plot_predictions(
-            all_predictions, run_config, targets.index
-        )
+        plot_predictions(all_predictions, run_config, targets.index)
         plt.show()
 
 
 def plot_predictions(
-        predictions: dict, run_config: dict, date_range: str
+    predictions: dict, run_config: dict, date_range: str
 ) -> plt.Figure:
     figure, axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 12), sharex=True)
     for i, entry in enumerate(predictions.items()):

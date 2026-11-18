@@ -18,6 +18,7 @@ from app.helper import *
 
 load_dotenv()
 
+
 def main():
     # load config
     run_config: dict = get_config("./run_config.yaml")
@@ -55,7 +56,7 @@ def main():
     target_data: pd.DataFrame = connection.query_dataframe(target_query)
 
     # clean and prepare data
-    time_span:str = "120Min"
+    time_span: str = "120Min"
     data_processor: DataProcessor = (
         DataProcessor(input_data, target_data)
         .to_timespan(time_span)
@@ -80,7 +81,10 @@ def main():
     clean_data.dropna(inplace=True)
 
     # Create time series
-    time_series_processor: TimeSeriesProcessor = TimeSeriesProcessor(clean_data[data_processor.get_inputs().columns], clean_data[data_processor.get_targets().columns])
+    time_series_processor: TimeSeriesProcessor = TimeSeriesProcessor(
+        clean_data[data_processor.get_inputs().columns],
+        clean_data[data_processor.get_targets().columns],
+    )
     time_series_processor.add_timeseries_feature(freq=time_span, steps=1)
     inputs: pd.DataFrame = time_series_processor.get_inputs()
     targets: pd.DataFrame = time_series_processor.get_targets()
@@ -181,7 +185,6 @@ def main():
                 artifact_file="predictions_overview.png",
             )
             mlflow.log_dict(run_config, artifact_file="run_config.yaml")
-
 
 
 if __name__ == "__main__":
