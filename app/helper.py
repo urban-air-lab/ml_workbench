@@ -6,13 +6,10 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from mlflow.models.signature import ModelSignature
-from sklearn.metrics import (
-    mean_absolute_error,
-    mean_absolute_percentage_error,
-    mean_squared_error,
-    r2_score,
-    root_mean_squared_error,
-)
+from sklearn.metrics import (mean_absolute_error,
+                             mean_absolute_percentage_error,
+                             mean_squared_error, r2_score,
+                             root_mean_squared_error)
 from ual.data_processor import DataProcessor
 
 

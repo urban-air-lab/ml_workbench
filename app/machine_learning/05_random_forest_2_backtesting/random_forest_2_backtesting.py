@@ -1,14 +1,8 @@
-from multiprocessing import cpu_count
-
 import mlflow
 import numpy
 from dotenv import load_dotenv
-from mlflow.models import infer_signature
 from pandas import DataFrame
-from saqc import BAD, SaQC
 from sklearn.base import BaseEstimator
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import GridSearchCV, GroupKFold, GroupShuffleSplit
 from ual.get_config import get_config
 from ual.influx.influx_db_connector import InfluxDBConnector
 from ual.influx.influx_query_builder import InfluxQueryBuilder
@@ -17,6 +11,7 @@ from ual.influx.sensors import SensorSource
 from app.helper import *
 
 load_dotenv()
+
 
 def add_timeseries_features(
     data: pd.DataFrame, columns: list[str], freq: str, steps: int = 1
@@ -124,21 +119,17 @@ def main():
     if ml_flow_active:
         with mlflow.start_run(run_name=run_config["run_name"]):
             mlflow.log_figure(
-                plot_predictions(
-                    all_predictions, run_config, targets.index
-                ),
+                plot_predictions(all_predictions, run_config, targets.index),
                 artifact_file="predictions_overview.png",
             )
             mlflow.log_dict(run_config, artifact_file="run_config.yaml")
     else:
-        plot_predictions(
-            all_predictions, run_config, targets.index
-        )
+        plot_predictions(all_predictions, run_config, targets.index)
         plt.show()
 
 
 def plot_predictions(
-        predictions: dict, run_config: dict, date_range: str
+    predictions: dict, run_config: dict, date_range: str
 ) -> plt.Figure:
     figure, axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 12), sharex=True)
     for i, entry in enumerate(predictions.items()):

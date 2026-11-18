@@ -1,0 +1,13 @@
+ual_bucket: "ual-minute-calibration"
+ual_sensor: "ual-3"
+lubw_bucket: "lubw-minute"
+lubw_sensor: ""
+start_time: "2025-09-08T00:00:00Z"
+stop_time: "2025-10-02T00:00:00Z"
+inputs:
+  - RAW_ADC_NO2_W
+  - RAW_ADC_NO2_A
+targets:
+  - NO2
+experiment_name: "Neural Networks"
+run_name: "NO2-ual3-1"
